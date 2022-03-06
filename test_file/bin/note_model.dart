@@ -1,4 +1,4 @@
-import 'package:pic_note/imports.dart';
+import 'constants.dart';
 
 class Note {
   final int id;
@@ -25,14 +25,13 @@ class Note {
   // each note when using the print statement.
   @override
   String toString() {
-    return '$picNote{$cId: $id, $cTitle: $title, $cSubtitle: $subtitle, $cDate: $date}';
+    return '{$cId: $id, $cTitle: $title, $cSubtitle: $subtitle, $cDate: $date}';
   }
 }
 
 List<Note> mapToNote(List<Map<String, dynamic>> maps) {
   List<Note> notes = [];
-  var test = maps.toString();
-  Utils().logger('Note Model', test);
+  var test = notes.toString();
   for (var element in maps) {
     notes.add(Note.fromJson(element));
   }
@@ -62,6 +61,6 @@ class NoteMedia {
   // each note when using the print statement.
   @override
   String toString() {
-    return '{$cId: $id, $cIsMedia: $isMedia, $cNote: $note, $imageUrl: $cImageURL}';
+    return '$picNoteMedia{$cId: $id, $cIsMedia: $isMedia, $cNote: $note, $imageUrl: $cImageURL}';
   }
 }

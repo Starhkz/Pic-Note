@@ -2,9 +2,6 @@
 const picNoteDB = 'pic_note.db';
 const currentIdDB = 'pic_note_id.db';
 
-const picNoteMediaDB = 'pic_note_media.db';
-const curentMediaDB = 'pic_note_media_id.db';
-
 /// App name
 const picNote = 'pic_note';
 const cId = 'id';

@@ -19,6 +19,9 @@ class EditScreen extends StatefulWidget {
 
 class _EditScreenState extends State<EditScreen> {
   int id = 0;
+  List<XFile>? imageFile;
+  bool isLoaded = false;
+
   @override
   void initState() {
     super.initState();
@@ -34,6 +37,7 @@ class _EditScreenState extends State<EditScreen> {
 
   @override
   Widget build(BuildContext context) {
+    List<NoteMedia> noteGallery = [];
     bool isNew = widget.isNew;
     String? _title, _note;
     Note? note;
@@ -42,7 +46,24 @@ class _EditScreenState extends State<EditScreen> {
       _title = note.title;
       _note = note.subtitle;
     }
+    void addTab(NoteMedia newNoteMedia) async {
+      noteGallery.add(newNoteMedia);
+    }
+
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () async {
+          {
+            Utils().logger("Edit Screen", cCameraLog);
+            imageFile = await popDialog(context);
+            setState(() {
+              isLoaded = true;
+            });
+          }
+        },
+        child: const Icon(Icons.camera),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       appBar: AppBar(
         backgroundColor: Colors.black,
         leading: GestureDetector(
@@ -66,10 +87,7 @@ class _EditScreenState extends State<EditScreen> {
             padding: const EdgeInsets.fromLTRB(0, 0, 15, 0),
             child: GestureDetector(
               onTap: () {
-                log(
-                  'Tapped ${widget.id}',
-                  name: 'Edit Screen',
-                );
+                Utils().logger(cEditNote, cCameraLog);
                 _formKey.currentState!.save();
                 if (isNew) {
                   Note newNote = Note(
@@ -79,10 +97,7 @@ class _EditScreenState extends State<EditScreen> {
                       subtitle: _note.toString());
                   addNote(newNote);
                 } else {
-                  log(
-                    'Updated ${widget.id}',
-                    name: 'List Tile',
-                  );
+                  Utils().logger('Edit Screen', 'Updated ${widget.id}');
                   Note newNote = Note(
                       id: note!.id,
                       title: _title.toString(),
@@ -102,70 +117,119 @@ class _EditScreenState extends State<EditScreen> {
           )
         ],
       ),
-      body: Form(
-        key: _formKey,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(
-                height: 20,
-                child: Text(
-                  cDummyDate,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              SizedBox(
-                height: 25,
-                child: TextFormField(
-                  initialValue: _title,
-                  style: const TextStyle(color: Colors.white, fontSize: 22),
-                  decoration: const InputDecoration(
-                    hintStyle: TextStyle(
-                      color: Colors.white60,
-                      fontSize: 20,
+      body: SingleChildScrollView(
+        child: Form(
+          key: _formKey,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(
+                  height: 20,
+                  child: Text(
+                    cDummyDate,
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                      color: Colors.white,
                     ),
-                    hintText: cTitle,
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
                   ),
-                  onChanged: (value) {
-                    _title = value;
-                  },
                 ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              SizedBox(
-                child: TextFormField(
-                  initialValue: _note,
-                  maxLines: null,
-                  textCapitalization: TextCapitalization.sentences,
-                  style: const TextStyle(color: Colors.white, fontSize: 18),
-                  decoration: const InputDecoration(
-                    hintStyle: TextStyle(
-                      color: Colors.white38,
-                      fontSize: 17,
+                const SizedBox(
+                  height: 10,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    TextButton(
+                        onPressed: () {
+                          int nMID = noteGallery.length;
+                          NoteMedia newNoteMedia =
+                              NoteMedia(id: nMID, isMedia: true);
+
+                          addTab(newNoteMedia);
+                          Utils().logger(cEditNote, 'Tapped Add Image $nMID');
+                        },
+                        child: const Text(
+                          'Add Image',
+                          style: TextStyle(color: Colors.blue),
+                        )),
+                    TextButton(
+                        onPressed: () {
+                          int nMID = noteGallery.length;
+                          NoteMedia newNoteMedia =
+                              NoteMedia(id: nMID, isMedia: false);
+
+                          addTab(newNoteMedia);
+                          Utils().logger(cEditNote, 'Tapped Add Note $nMID');
+                        },
+                        child: const Text(
+                          'Add Note',
+                          style: TextStyle(color: Colors.blue),
+                        ))
+                  ],
+                ),
+                Center(
+                  child: TextButton(
+                      onPressed: () {
+                        Utils().logger(cEditNote, noteGallery.toString());
+                      },
+                      child: const Text(
+                        'Log Note',
+                        style: TextStyle(color: Colors.grey),
+                      )),
+                ),
+                SizedBox(
+                  height: 25,
+                  child: TextFormField(
+                    initialValue: _title,
+                    style: const TextStyle(color: Colors.white, fontSize: 22),
+                    decoration: const InputDecoration(
+                      hintStyle: TextStyle(
+                        color: Colors.white60,
+                        fontSize: 20,
+                      ),
+                      hintText: cTitle,
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
                     ),
-                    hintText: cDummyHint,
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                    onChanged: (value) {
+                      _title = value;
+                    },
                   ),
-                  onChanged: (value) {
-                    _note = value;
-                  },
                 ),
-              )
-            ],
+                const SizedBox(
+                  height: 10,
+                ),
+                SizedBox(
+                  child: TextFormField(
+                    initialValue: _note,
+                    maxLines: null,
+                    textCapitalization: TextCapitalization.sentences,
+                    style: const TextStyle(color: Colors.white, fontSize: 18),
+                    decoration: const InputDecoration(
+                      hintStyle: TextStyle(
+                        color: Colors.white38,
+                        fontSize: 17,
+                      ),
+                      hintText: cDummyHint,
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                    ),
+                    onChanged: (value) {
+                      _note = value;
+                    },
+                  ),
+                ),
+                isLoaded
+                    ? SizedBox(height: 550, child: previewImages(imageFile))
+                    : const Text(
+                        'Nothing Yet',
+                        style: TextStyle(color: Colors.white),
+                      ),
+              ],
+            ),
           ),
         ),
       ),
@@ -184,4 +248,33 @@ class _EditScreenState extends State<EditScreen> {
 
 void update(Note newNote) async {
   await PicDataBase().editNote(newNote);
+}
+
+Future<List<XFile>?>? popDialog(context) async {
+  Future<List<XFile>?>? imageFiles;
+  await showDialog(
+    context: context,
+    builder: (BuildContext context) => AlertDialog(
+      title: const Text('Upload Photo'),
+      content: const Text('Photo'),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () {
+            imageFiles = Utils().getImage(ImageSource.camera);
+            Navigator.pop(context, 'Camera');
+          },
+          child: const Text('Camera'),
+        ),
+        TextButton(
+          onPressed: () {
+            imageFiles = Utils().getImages(ImageSource.gallery);
+
+            Navigator.pop(context, 'Gallery');
+          },
+          child: const Text('Gallery'),
+        ),
+      ],
+    ),
+  );
+  return imageFiles;
 }

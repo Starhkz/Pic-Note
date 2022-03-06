@@ -63,7 +63,7 @@ class _NoteTileState extends State<NoteTile> {
           ),
           GestureDetector(
             onTap: () {
-              popDialog();
+              popDialog(context);
               log(
                 'Tapped image Area of ${widget.note.id}',
                 name: 'Tile',
@@ -89,26 +89,4 @@ class _NoteTileState extends State<NoteTile> {
       ),
     );
   }
-}
-
-popDialog() {
-  return AlertDialog(
-    title: const Text('Welcome'), // To display the title it is optional
-    content: const Text(
-        'GeeksforGeeks'), // Message which will be pop up on the screen
-    // Action widget which will provide the user to acknowledge the choice
-    actions: [
-      FlatButton(
-        // FlatButton widget is used to make a text to work like a button
-        textColor: Colors.black,
-        onPressed: () {}, // function used to perform after pressing the button
-        child: const Text('CANCEL'),
-      ),
-      FlatButton(
-        textColor: Colors.black,
-        onPressed: () {},
-        child: const Text('ACCEPT'),
-      ),
-    ],
-  );
 }

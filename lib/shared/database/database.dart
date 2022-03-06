@@ -83,4 +83,45 @@ class PicDataBase {
     notes = mapToNote(maps);
     return notes;
   }
+
+  // For Notee Media
+  Future<Database> initNMDB() async {
+    final database = openDatabase(
+      // Set the path to the database. Note: Using the `join` function from the
+      // `path` package is best practice to ensure the path is correctly
+      // constructed for each platform.
+      join(await getDatabasesPath(), picNoteMediaDB),
+      // When the database is first created, create a table to store dogs.
+      onCreate: (db, version) {
+        // Run the CREATE TABLE statement on the database.
+        return db.execute(
+          'CREATE TABLE $picNoteMedia($cId INTEGER PRIMARY KEY, $cTitle TEXT, $cSubtitle TEXT, $cDate TEXT)',
+        );
+      },
+      // Set the version. This executes the onCreate function and provides a
+      // path to perform database upgrades and downgrades.
+      version: 1,
+    );
+    return database;
+  }
+
+  Future<Database> initNMID() async {
+    final database = openDatabase(
+      // Set the path to the database. Note: Using the `join` function from the
+      // `path` package is best practice to ensure the path is correctly
+      // constructed for each platform.
+      join(await getDatabasesPath(), curentMediaDB),
+      // When the database is first created, create a table to store dogs.
+      onCreate: (db, version) {
+        // Run the CREATE TABLE statement on the database.
+        return db.execute(
+          'CREATE TABLE $picNoteMedia($cId INTEGER PRIMARY KEY, $cCurrentID INTEGER)',
+        );
+      },
+      // Set the version. This executes the onCreate function and provides a
+      // path to perform database upgrades and downgrades.
+      version: 1,
+    );
+    return database;
+  }
 }
