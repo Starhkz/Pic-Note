@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'constants.dart';
 
 class Note {
@@ -63,4 +65,15 @@ class NoteMedia {
   String toString() {
     return '$picNoteMedia{$cId: $id, $cIsMedia: $isMedia, $cNote: $note, $imageUrl: $cImageURL}';
   }
+
+  String encode(List<NoteMedia> noteMedia) => json.encode(
+        noteMedia
+            .map<Map<String, dynamic>>((noteMedia) => noteMedia.toMap())
+            .toList(),
+      );
+
+  List<NoteMedia> decode(String noteMedia) =>
+      (json.decode(noteMedia) as List<dynamic>)
+          .map<NoteMedia>((item) => NoteMedia.fromJson(item))
+          .toList();
 }
