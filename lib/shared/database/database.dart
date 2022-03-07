@@ -59,10 +59,7 @@ class PicDataBase {
     int newId = currentId + 1;
     await prefs.setInt(cCurrentID, newId);
     int iD = prefs.getInt(cCurrentID) ?? 5;
-    log(
-      'Tapped $iD',
-      name: 'Insert Function',
-    );
+    Utils().logger('Insert Function', 'Tapped $iD');
   }
 
   removeNote(int id) async {
