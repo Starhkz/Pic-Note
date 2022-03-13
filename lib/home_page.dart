@@ -40,7 +40,7 @@ class _HomeState extends State<Home> {
       ),
       backgroundColor: Colors.black,
       appBar: AppBar(
-        toolbarHeight: 150,
+        toolbarHeight: 130,
         elevation: 0,
         title: Column(
           mainAxisAlignment: MainAxisAlignment.start,
@@ -86,9 +86,12 @@ class _HomeState extends State<Home> {
         ),
         backgroundColor: Colors.black,
       ),
-      body: Center(
-        child: SizedBox(width: width, child: noteList()),
-      ),
+      body: RefreshIndicator(
+          onRefresh: () {
+            setState(() {});
+            return PicDataBase().getNotes();
+          },
+          child: SizedBox(width: width, child: noteList())),
     );
   }
 
@@ -104,7 +107,10 @@ class _HomeState extends State<Home> {
           List<Note> notes = snapshot.data!;
           return noteListBuilder(notes);
         } else {
-          return const Text(cDummyHint);
+          return const Text(
+            cDummyHint,
+            style: TextStyle(color: Colors.white),
+          );
         }
       },
     );
