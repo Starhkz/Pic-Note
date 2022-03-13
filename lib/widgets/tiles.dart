@@ -12,6 +12,14 @@ class NoteTile extends StatefulWidget {
 class _NoteTileState extends State<NoteTile> {
   @override
   Widget build(BuildContext context) {
+    Note note = widget.note;
+    String subtitle = '';
+    if (note.subtitle != null && note.subtitle != 'null') {
+      String encodedData = note.subtitle.toString();
+      List<NoteMedia> noteMedia = NoteMedia.decode(encodedData);
+      subtitle = noteMedia[0].note.toString();
+    }
+
     return Container(
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(15),
@@ -33,6 +41,7 @@ class _NoteTileState extends State<NoteTile> {
                   ),
                   Text(
                     widget.note.title,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
@@ -43,7 +52,8 @@ class _NoteTileState extends State<NoteTile> {
                   ),
                   // ignore: prefer_const_constructors
                   Text(
-                    widget.note.subtitle,
+                    subtitle,
+                    overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w500,
@@ -52,7 +62,7 @@ class _NoteTileState extends State<NoteTile> {
                   const SizedBox(
                     height: 5,
                   ),
-                  Text(widget.note.id.toString(),
+                  Text(note.id.toString(),
                       style: const TextStyle(color: Colors.white)),
                   const SizedBox(
                     height: 7,
