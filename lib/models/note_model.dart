@@ -5,22 +5,27 @@ import 'package:pic_note/imports.dart';
 class Note {
   final int id;
   final String title;
-  final String subtitle;
-  final String date;
+  final String? subtitle;
+  final DateTime date;
   Note(
       {required this.id,
       required this.title,
       required this.date,
       required this.subtitle});
   Map<String, dynamic> toMap() {
-    return {cId: id, cTitle: title, cSubtitle: subtitle, cDate: date};
+    return {
+      cId: id,
+      cTitle: title,
+      cSubtitle: subtitle,
+      cDate: date.toString()
+    };
   }
 
   factory Note.fromJson(Map<dynamic, dynamic> json) {
     return Note(
         id: json[cId],
         title: json[cTitle],
-        date: json[cDate],
+        date: DateTime.tryParse(json[cDate]) ?? DateTime.now(),
         subtitle: json[cSubtitle]);
   }
   // Implement toString to make it easier to see information about
