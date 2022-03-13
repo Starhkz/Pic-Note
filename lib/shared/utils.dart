@@ -46,7 +46,6 @@ class Utils {
 }
 
 previewImages(List<XFile>? pickedFiles) {
-  print('I opened Utils');
   if (pickedFiles != null) {
     if (pickedFiles.isNotEmpty) {
       return Semantics(
@@ -76,5 +75,74 @@ previewImages(List<XFile>? pickedFiles) {
       textAlign: TextAlign.center,
       style: TextStyle(color: Colors.white),
     );
+  }
+}
+
+class Date {
+  final String date;
+  final String month;
+  final int day;
+  final int year;
+  final int hour;
+  final int minute;
+  final String period;
+  final String time;
+  final String dateTime;
+
+  Date(this.date, this.month, this.day, this.year, this.hour, this.minute,
+      this.period, this.time, this.dateTime);
+
+  factory Date.toDate(DateTime dT) {
+    final String date;
+    final String month;
+    final int day;
+    final int year;
+    int hour;
+    final int minute;
+    final String time;
+    final String period;
+    final String dateTime;
+
+    String zeroFormat(int num) {
+      if (num < 10) {
+        return '0$num';
+      }
+      return num.toString();
+    }
+
+    List<String> months = [
+      cJan,
+      cFeb,
+      cMar,
+      cApr,
+      cMay,
+      cJan,
+      cJul,
+      cAug,
+      cSep,
+      cOct,
+      cNov,
+      cDec
+    ];
+    day = dT.day;
+    month = months[dT.month - 1];
+    year = dT.year;
+    hour = dT.hour;
+    minute = dT.minute;
+    date = '$month ${zeroFormat(day)}, $year';
+
+    if (hour < 12) {
+      period = 'AM';
+    } else {
+      period = 'PM';
+    }
+    if (hour % 12 == 0) {
+      hour = 12;
+    } else {
+      hour = hour % 12;
+    }
+    time = '${zeroFormat(hour)}:${zeroFormat(minute)} $period';
+    dateTime = '$date $time';
+    return Date(date, month, day, year, hour, minute, period, time, dateTime);
   }
 }
