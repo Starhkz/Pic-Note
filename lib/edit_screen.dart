@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -22,42 +21,73 @@ class EditScreen extends StatefulWidget {
 
 class _EditScreenState extends State<EditScreen> {
   int id = 0;
+  bool canSave = true;
   List<XFile>? imageFile;
-  bool isLoaded = false;
-  List<NoteMedia> noteGallery = [];
+  List<NoteMedia>? noteGallery;
   @override
   void initState() {
     super.initState();
     initStore();
+
     if (!widget.isNew) extractNoteMedia();
   }
 
   final _formKey = GlobalKey<FormState>();
-
+  bool firstBuild = true;
   @override
   Widget build(BuildContext context) {
     bool isNew = widget.isNew;
-    String? _title, _note;
+    String? _title;
+    DateTime? date;
     Note? note;
+    String? dateString;
     if (!isNew) {
+      canSave = true;
       note = widget.note!;
       _title = note.title;
-      _note = note.subtitle;
+      date = note.date;
+      dateString = Date.toDate(date).dateTime;
+    } else if (firstBuild) {
+      firstBuild = false;
+      noteGallery ??= [];
+      noteGallery!.add(NoteMedia(id: id, isMedia: false));
+      Utils().logger('Edit Screen',
+          'The list has  ${noteGallery!.length.toString()} element(s)');
     }
+    dateString ??= Date.toDate(DateTime.now()).date;
     void addTab(NoteMedia newNoteMedia) async {
-      noteGallery.add(newNoteMedia);
+      noteGallery!.add(newNoteMedia);
+    }
+
+    void addTextField() {
+      int nMID = noteGallery!.length;
+      NoteMedia newNoteMedia =
+          NoteMedia(id: nMID, isMedia: false, imageUrl: null, note: '');
+
+      addTab(newNoteMedia);
+      Utils().logger(cEditNote, 'Added Text Field $nMID');
+      setState(() {});
     }
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
-          {
-            Utils().logger("Edit Screen", cCameraLog);
-            imageFile = await popDialog(context);
-            setState(() {
-              isLoaded = true;
-            });
+          imageFile = await popDialog(context);
+
+          int nMID = noteGallery!.length;
+          if (imageFile != null) {
+            NoteMedia newNoteMedia = NoteMedia(
+                id: nMID,
+                isMedia: true,
+                imageUrl: imageFile![0].path,
+                note: '');
+            addTab(newNoteMedia);
+          } else {
+            return;
           }
+          Utils().logger(cEditNote, 'Tapped Add Image $nMID');
+          addTextField();
+          setState(() {});
         },
         child: const Icon(Icons.camera),
       ),
@@ -85,25 +115,39 @@ class _EditScreenState extends State<EditScreen> {
             padding: const EdgeInsets.fromLTRB(0, 0, 15, 0),
             child: GestureDetector(
               onTap: () {
-                Utils().logger(cEditNote, cCameraLog);
-                _formKey.currentState!.save();
-                if (isNew) {
-                  Note newNote = Note(
-                      id: id,
-                      title: _title.toString(),
-                      date: DateTime.now().day.toString(),
-                      subtitle: NoteMedia.encode(noteGallery));
-                  addNote(newNote);
-                } else {
-                  Utils().logger('Edit Screen', 'Updated ${widget.id}');
-                  Note newNote = Note(
-                      id: note!.id,
-                      title: _title.toString(),
-                      date: DateTime.now().day.toString(),
-                      subtitle: NoteMedia.encode(noteGallery));
-                  update(newNote);
+                if (noteGallery![0].note == 'null' ||
+                    noteGallery![0].note == null ||
+                    noteGallery![0].note == '') {
+                  canSave = false;
                 }
-
+                Utils().logger(cEditNote, 'Saved Button was tapped');
+                _formKey.currentState!.save();
+                if (canSave) {
+                  if (isNew) {
+                    _title ??= '';
+                    Note newNote = Note(
+                        id: id,
+                        title: _title.toString(),
+                        date: DateTime.now(),
+                        subtitle: noteGallery != null
+                            ? NoteMedia.encode(noteGallery!)
+                            : null);
+                    if (noteGallery == null) {
+                      navHome(context);
+                      return;
+                    } else {
+                      addNote(newNote);
+                    }
+                  } else {
+                    Utils().logger('Edit Screen', 'Updated ${widget.id}');
+                    Note newNote = Note(
+                        id: note!.id,
+                        title: _title.toString(),
+                        date: DateTime.now(),
+                        subtitle: NoteMedia.encode(noteGallery!));
+                    update(newNote);
+                  }
+                }
                 navHome(context);
               },
               child: Icon(
@@ -115,153 +159,101 @@ class _EditScreenState extends State<EditScreen> {
           )
         ],
       ),
-      body: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(
-                  height: 20,
-                  child: Text(
-                    cDummyDate,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white,
-                    ),
+      body: Form(
+        key: _formKey,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                height: 20,
+                child: Text(
+                  dateString,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                    color: Colors.white,
                   ),
                 ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    TextButton(
-                        onPressed: () async {
-                          imageFile = await popDialog(context);
-
-                          int nMID = noteGallery.length;
-                          NoteMedia newNoteMedia = NoteMedia(
-                              id: nMID,
-                              isMedia: true,
-                              imageUrl: imageFile![0].path,
-                              note: 'Same thing');
-
-                          addTab(newNoteMedia);
-                          setState(() {
-                            isLoaded = true;
-                          });
-                          Utils().logger(cEditNote, 'Tapped Add Image $nMID');
-                        },
-                        child: const Text(
-                          'Add Image',
-                          style: TextStyle(color: Colors.blue),
-                        )),
-                    TextButton(
-                        onPressed: () {
-                          int nMID = noteGallery.length;
-                          NoteMedia newNoteMedia = NoteMedia(
-                              id: nMID,
-                              isMedia: false,
-                              imageUrl: 'Empty',
-                              note: 'Same thing');
-
-                          addTab(newNoteMedia);
-                          Utils().logger(cEditNote, 'Tapped Add Note $nMID');
-                        },
-                        child: const Text(
-                          'Add Note',
-                          style: TextStyle(color: Colors.blue),
-                        ))
-                  ],
-                ),
-                Center(
-                  child: TextButton(
-                      onPressed: () {
-                        noteGallery.last.note = 'It changed to a note';
-                        Utils().logger(cEditNote, noteGallery.toString());
-                      },
-                      child: const Text(
-                        'Log Note',
-                        style: TextStyle(color: Colors.grey),
-                      )),
-                ),
-                SizedBox(
-                  height: 25,
-                  child: TextFormField(
-                    initialValue: _title,
-                    style: const TextStyle(color: Colors.white, fontSize: 22),
-                    decoration: const InputDecoration(
-                      hintStyle: TextStyle(
-                        color: Colors.white60,
-                        fontSize: 20,
-                      ),
-                      hintText: cTitle,
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              SizedBox(
+                height: 25,
+                child: TextFormField(
+                  initialValue: _title,
+                  style: const TextStyle(color: Colors.white, fontSize: 22),
+                  decoration: const InputDecoration(
+                    hintStyle: TextStyle(
+                      color: Colors.white60,
+                      fontSize: 20,
                     ),
-                    onChanged: (value) {
-                      _title = value;
-                    },
+                    hintText: cCTitle,
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
                   ),
+                  onChanged: (value) {
+                    Utils().logger('Edit Screen', value);
+                    _title = value;
+                  },
                 ),
-                const SizedBox(
-                  height: 10,
-                ),
-                textMethod(noteGallery),
-                isLoaded
-                    ? SizedBox(height: 550, child: previewImages(imageFile))
-                    : const Text(
-                        'Nothing Yet',
-                        style: TextStyle(color: Colors.white),
-                      ),
-              ],
-            ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Flexible(
+                child: textMethod(noteGallery!, context),
+              )
+            ],
           ),
         ),
       ),
     );
   }
 
-  textMethod(List<NoteMedia> noteMedia) {
-    return SizedBox(
-      height: 700,
-      child: ListView.builder(
-        key: UniqueKey(),
-        itemBuilder: (BuildContext context, int index) {
-          // Why network for web?
-          // See https://pub.dev/packages/image_picker#getting-ready-for-the-web-platform
-          return Semantics(
-              label: 'image_picker_example_picked_image',
-              child: tile(noteMedia[index], index));
-        },
-        itemCount: noteMedia.length,
-      ),
+  textMethod(List<NoteMedia> noteMedia, BuildContext context) {
+    return ListView.builder(
+      scrollDirection: Axis.vertical,
+      shrinkWrap: true,
+      key: UniqueKey(),
+      itemBuilder: (BuildContext context, int index) {
+        // Why network for web?
+        // See https://pub.dev/packages/image_picker#getting-ready-for-the-web-platform
+        return Semantics(
+            label: 'image_picker_example_picked_image',
+            child: tile(noteMedia[index], index));
+      },
+      itemCount: noteMedia.length,
     );
   }
 
+  /// Returns you to the home screen from any point in the app
   void navHome(BuildContext context) {
     return Navigator.pop(
         context, MaterialPageRoute(builder: (_) => const Home()));
   }
 
+  /// Add note to the database
   void addNote(Note newNote) async {
     await PicDataBase().insertNote(newNote);
   }
 
+  /// Retrieves the ID for the particular note
   void initStore() async {
     final prefs = await SharedPreferences.getInstance();
     id = prefs.getInt(cCurrentID)!;
   }
 
+  /// Converts encoded string stored in the datatabase to a list of NoteMedia
   void extractNoteMedia() {
     Note? note = widget.note;
-    String encodedList = note!.subtitle;
-    noteGallery = NoteMedia.decode(encodedList);
+    if (note!.subtitle != null && note.subtitle != 'null') {
+      String encodedList = note.subtitle.toString();
+      noteGallery = NoteMedia.decode(encodedList);
+    }
   }
 
   tile(NoteMedia noteMedia, int index) {
@@ -287,7 +279,10 @@ class _EditScreenState extends State<EditScreen> {
             contentPadding: EdgeInsets.fromLTRB(0, 10, 0, 0),
           ),
           onChanged: (value) {
-            noteGallery[index].note = value;
+            Utils().logger('Edit Screen', value);
+            noteGallery![index].note = value;
+            Utils().logger('Saved Value',
+                'The list has  ${noteGallery![index].note.toString()}');
           },
         ),
       );
