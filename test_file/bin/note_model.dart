@@ -7,8 +7,12 @@ class Note {
   final String title;
   final String subtitle;
   final String date;
+  final String? imageUrl;
+  final List<String>? tags;
   Note(
-      {required this.id,
+      {this.imageUrl,
+      this.tags,
+      required this.id,
       required this.title,
       required this.date,
       required this.subtitle});
@@ -21,7 +25,8 @@ class Note {
         id: json[cId],
         title: json[cTitle],
         date: json[cDate],
-        subtitle: json[cSubtitle]);
+        subtitle: json[cSubtitle],
+        imageUrl: json[cImageURL]);
   }
   // Implement toString to make it easier to see information about
   // each note when using the print statement.
@@ -33,14 +38,13 @@ class Note {
 
 List<Note> mapToNote(List<Map<String, dynamic>> maps) {
   List<Note> notes = [];
-  var test = notes.toString();
   for (var element in maps) {
     notes.add(Note.fromJson(element));
   }
   return notes;
 }
 
-//Note file with media
+///Note file with media
 class NoteMedia {
   final int id;
   final bool isMedia;
@@ -52,6 +56,7 @@ class NoteMedia {
     return {cId: id, cIsMedia: isMedia, cNote: note, cImageURL: imageUrl};
   }
 
+  /// Returns NoteMedia from a [json]
   factory NoteMedia.fromJson(Map<dynamic, dynamic> json) {
     return NoteMedia(
         id: json[cId],
@@ -66,12 +71,16 @@ class NoteMedia {
     return '$picNoteMedia{$cId: $id, $cIsMedia: $isMedia, $cNote: $note, $imageUrl: $cImageURL}';
   }
 
+  /// Encodes the List of [NoteMedia] to a [String] that can be saved
+  /// to the SQLite Database
   String encode(List<NoteMedia> noteMedia) => json.encode(
         noteMedia
             .map<Map<String, dynamic>>((noteMedia) => noteMedia.toMap())
             .toList(),
       );
 
+  /// Decodes Encoded [NoteMedia] List [String] and returns a List of [NoteMedia]
+  /// Can only decode String encoded with [NoteMedia.encode]
   List<NoteMedia> decode(String noteMedia) =>
       (json.decode(noteMedia) as List<dynamic>)
           .map<NoteMedia>((item) => NoteMedia.fromJson(item))

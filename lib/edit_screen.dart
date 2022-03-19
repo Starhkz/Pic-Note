@@ -33,6 +33,7 @@ class _EditScreenState extends State<EditScreen> {
   }
 
   final _formKey = GlobalKey<FormState>();
+
   bool firstBuild = true;
   @override
   Widget build(BuildContext context) {
@@ -59,6 +60,7 @@ class _EditScreenState extends State<EditScreen> {
       noteGallery!.add(newNoteMedia);
     }
 
+    final titleController = TextEditingController(text: _title);
     void addTextField() {
       int nMID = noteGallery!.length;
       NoteMedia newNoteMedia =
@@ -67,6 +69,7 @@ class _EditScreenState extends State<EditScreen> {
       addTab(newNoteMedia);
       Utils().logger(cEditNote, 'Added Text Field $nMID');
       setState(() {});
+      Utils().logger('Text Field', canSave.toString());
     }
 
     return Scaffold(
@@ -85,8 +88,10 @@ class _EditScreenState extends State<EditScreen> {
           } else {
             return;
           }
-          Utils().logger(cEditNote, 'Tapped Add Image $nMID');
+          Utils().logger(
+              cEditNote, 'Tapped Add Image ${noteGallery![nMID].imageUrl}');
           addTextField();
+          _formKey.currentState!.save();
           setState(() {});
         },
         child: const Icon(Icons.camera),
@@ -124,10 +129,9 @@ class _EditScreenState extends State<EditScreen> {
                 _formKey.currentState!.save();
                 if (canSave) {
                   if (isNew) {
-                    _title ??= '';
                     Note newNote = Note(
                         id: id,
-                        title: _title.toString(),
+                        title: titleController.text,
                         date: DateTime.now(),
                         subtitle: noteGallery != null
                             ? NoteMedia.encode(noteGallery!)
@@ -137,17 +141,23 @@ class _EditScreenState extends State<EditScreen> {
                       return;
                     } else {
                       addNote(newNote);
+                      Utils().logger('Edit Screen',
+                          'Create: Save Test - ${newNote.subtitle}');
                     }
                   } else {
                     Utils().logger('Edit Screen', 'Updated ${widget.id}');
                     Note newNote = Note(
                         id: note!.id,
-                        title: _title.toString(),
+                        title: titleController.text,
                         date: DateTime.now(),
-                        subtitle: NoteMedia.encode(noteGallery!));
+                        subtitle: NoteMedia.encode(noteGallery!),
+                        tags: ['Tag ${note.id}']);
                     update(newNote);
+                    Utils().logger('Edit Screen',
+                        'Update: Save Test - ${newNote.subtitle}');
                   }
                 }
+
                 navHome(context);
               },
               child: Icon(
@@ -184,7 +194,7 @@ class _EditScreenState extends State<EditScreen> {
               SizedBox(
                 height: 25,
                 child: TextFormField(
-                  initialValue: _title,
+                  controller: titleController,
                   style: const TextStyle(color: Colors.white, fontSize: 22),
                   decoration: const InputDecoration(
                     hintStyle: TextStyle(
@@ -205,7 +215,7 @@ class _EditScreenState extends State<EditScreen> {
                 height: 10,
               ),
               Flexible(
-                child: textMethod(noteGallery!, context),
+                child: noteWidget(noteGallery!, context),
               )
             ],
           ),
@@ -214,7 +224,8 @@ class _EditScreenState extends State<EditScreen> {
     );
   }
 
-  textMethod(List<NoteMedia> noteMedia, BuildContext context) {
+  /// Returns the contents of the note
+  noteWidget(List<NoteMedia> noteMedia, BuildContext context) {
     return ListView.builder(
       scrollDirection: Axis.vertical,
       shrinkWrap: true,
@@ -231,14 +242,18 @@ class _EditScreenState extends State<EditScreen> {
   }
 
   /// Returns you to the home screen from any point in the app
-  void navHome(BuildContext context) {
-    return Navigator.pop(
-        context, MaterialPageRoute(builder: (_) => const Home()));
+  navHome(BuildContext context) {
+    return Navigator.pop(context);
   }
 
   /// Add note to the database
   void addNote(Note newNote) async {
     await PicDataBase().insertNote(newNote);
+  }
+
+  /// Updates an existing [Note]
+  void update(Note newNote) async {
+    await PicDataBase().editNote(newNote);
   }
 
   /// Retrieves the ID for the particular note
@@ -256,6 +271,7 @@ class _EditScreenState extends State<EditScreen> {
     }
   }
 
+  /// Returns A Notemedia tile. It could be a [TextFormField] or an [Image]
   tile(NoteMedia noteMedia, int index) {
     if (noteMedia.isMedia) {
       return Semantics(
@@ -290,10 +306,7 @@ class _EditScreenState extends State<EditScreen> {
   }
 }
 
-void update(Note newNote) async {
-  await PicDataBase().editNote(newNote);
-}
-
+/// Opens a dialog for inserting images
 Future<List<XFile>?>? popDialog(context) async {
   Future<List<XFile>?>? imageFiles;
   await showDialog(

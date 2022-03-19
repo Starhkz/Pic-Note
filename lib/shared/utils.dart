@@ -4,9 +4,12 @@ import 'package:flutter/material.dart';
 
 import '../imports.dart';
 
+/// Contains tools required to run the app
 class Utils {
   final ImagePicker _picker = ImagePicker();
   List<XFile>? pickedFileList;
+
+  /// Writes logs to the console for debugging
   void logger(String name, String message) {
     return log(
       message,
@@ -14,12 +17,10 @@ class Utils {
     );
   }
 
+  /// Used to pick a single image from the chosen image source
   Future<List<XFile>?> getImage(ImageSource source) async {
     XFile? pickedFile = await _picker.pickImage(
       source: source,
-      // maxWidth: maxWidth,
-      // maxHeight: maxHeight,
-      // imageQuality: quality,
     );
     if (pickedFile != null) {
       logger('Picked File Nullity', pickedFile.name);
@@ -31,20 +32,19 @@ class Utils {
     }
   }
 
+  /// Used to select multiple images from gallery
   Future<List<XFile>?> getImages(ImageSource source) async {
     try {
-      pickedFileList = await _picker.pickMultiImage(
-          // maxWidth: maxWidth,
-          // maxHeight: maxHeight,
-          // imageQuality: quality,
-          );
+      pickedFileList = await _picker.pickMultiImage();
       return pickedFileList;
     } catch (e) {
       logger('Multi Image Picker Get List', e.toString());
+      return [];
     }
   }
 }
 
+/// Returns the [Image] widget if available
 previewImages(List<XFile>? pickedFiles) {
   if (pickedFiles != null) {
     if (pickedFiles.isNotEmpty) {
@@ -52,8 +52,6 @@ previewImages(List<XFile>? pickedFiles) {
           child: ListView.builder(
             key: UniqueKey(),
             itemBuilder: (BuildContext context, int index) {
-              // Why network for web?
-              // See https://pub.dev/packages/image_picker#getting-ready-for-the-web-platform
               return Semantics(
                 label: 'image_picker_example_picked_image',
                 child: Image.file(File(pickedFiles[index].path)),
@@ -78,6 +76,7 @@ previewImages(List<XFile>? pickedFiles) {
   }
 }
 
+/// Date class
 class Date {
   final String date;
   final String month;
@@ -92,6 +91,7 @@ class Date {
   Date(this.date, this.month, this.day, this.year, this.hour, this.minute,
       this.period, this.time, this.dateTime);
 
+  /// Converts [DateTime] object to a [Date] class
   factory Date.toDate(DateTime dT) {
     final String date;
     final String month;
@@ -103,6 +103,7 @@ class Date {
     final String period;
     final String dateTime;
 
+    /// Reformats the number by adding a zero if it's a unit
     String zeroFormat(int num) {
       if (num < 10) {
         return '0$num';

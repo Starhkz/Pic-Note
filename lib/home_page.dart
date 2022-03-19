@@ -1,3 +1,5 @@
+import 'package:flutter_slidable/flutter_slidable.dart';
+
 import 'imports.dart';
 import 'package:flutter/material.dart';
 
@@ -107,9 +109,15 @@ class _HomeState extends State<Home> {
           List<Note> notes = snapshot.data!;
           return noteListBuilder(notes);
         } else {
-          return const Text(
-            cDummyHint,
-            style: TextStyle(color: Colors.white),
+          Utils().logger('Home Screen', 'No Notes');
+          return const Center(
+            child: Text(
+              cDummyHint,
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 30,
+                  fontStyle: FontStyle.italic),
+            ),
           );
         }
       },
@@ -121,40 +129,230 @@ class _HomeState extends State<Home> {
         itemCount: notes.length,
         itemBuilder: (BuildContext context, int index) {
           Note note = notes[index];
-          return GestureDetector(
-            onTap: () => {
-              log(
-                'Tapped ${note.id}',
-                name: 'List Tile',
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 5),
+            child: Slidable(
+              // Specify a key if the Slidable is dismissible.
+              key: UniqueKey(),
+
+              // The start action pane is the one at the left or the top side.
+              startActionPane: ActionPane(
+                // A motion is a widget used to control how the pane animates.
+                motion: const ScrollMotion(),
+
+                // A pane can dismiss the Slidable.
+                dismissible: DismissiblePane(onDismissed: () {
+                  PicDataBase().removeNote(note.id);
+                  refreshList();
+                }),
+
+                // All actions are defined in the children parameter.
+                children: [
+                  // A SlidableAction can have an icon and/or a label.
+                  SlidableAction(
+                    onPressed: ((context) {
+                      PicDataBase().removeNote(note.id);
+                      setState(() {});
+                    }),
+                    backgroundColor: const Color(0xFFFE4A49),
+                    foregroundColor: Colors.white,
+                    icon: Icons.delete,
+                    label: 'Delete',
+                  ),
+                ],
               ),
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => EditScreen(
-                            note: note,
-                            id: note.id,
-                            isNew: false,
-                          )))
-            },
-            onLongPress: () async {
-              await PicDataBase().removeNote(note.id);
-              log(
-                'Removed ${note.id}',
-                name: 'List Tile',
-              );
-              refreshList();
-            },
-            child: Column(
-              children: [
-                NoteTile(
-                  note: note,
-                ),
-                const SizedBox(
-                  height: 10,
-                )
-              ],
+              endActionPane: ActionPane(
+                motion: const ScrollMotion(),
+                children: [
+                  // A SlidableAction can have an icon and/or a label.
+                  SlidableAction(
+                    onPressed: ((context) {
+                      labelDialog(context, note, index);
+                      setState(() {});
+                    }),
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
+                    icon: Icons.label,
+                    label: 'Label',
+                  ),
+                ],
+                dismissible: DismissiblePane(onDismissed: () {
+                  refreshList();
+                }),
+              ),
+              // The child of the Slidable is what the user sees when the
+              // component is not dragged.
+              child: NoteTile(
+                note: note,
+              ),
             ),
           );
         });
   }
+}
+
+labelDialog(BuildContext context, Note note, int index) async {
+  List<String> tags = [];
+
+  String tag = '';
+  TextEditingController textEditingController = TextEditingController();
+  await showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return StatefulBuilder(builder: (context, setState) {
+        /// Updates an existing [Note]
+        void update(Note newNote) async {
+          await PicDataBase().editNote(newNote);
+        }
+
+        popLabel(int pos) {
+          tags.removeAt(pos);
+          Note newNote = Note(
+              id: note.id,
+              title: note.title.toString(),
+              date: DateTime.now(),
+              subtitle: note.subtitle,
+              tags: tags);
+          update(newNote);
+          setState(
+            () {},
+          );
+        }
+
+        return AlertDialog(
+          backgroundColor: const Color.fromARGB(255, 59, 59, 59),
+          title: const Center(
+              child: Text(
+            'Update Labels',
+            style: TextStyle(color: Colors.white),
+          )),
+          content: SizedBox(
+            height: 160,
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  FutureBuilder<List<String>>(
+                    future: PicDataBase().getTags(index),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        tags = snapshot.data!;
+                        return SizedBox(
+                          height: 40,
+                          child: ListView.builder(
+                            scrollDirection: Axis.horizontal,
+                            shrinkWrap: true,
+                            key: UniqueKey(),
+                            itemBuilder: (BuildContext context, int ind) {
+                              return Padding(
+                                padding: const EdgeInsets.all(2),
+                                child: SizedBox(
+                                  child: Container(
+                                    padding:
+                                        const EdgeInsets.fromLTRB(7, 5, 0, 0),
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(15),
+                                        color: const Color.fromARGB(
+                                            255, 221, 52, 52)),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Center(
+                                          child: Text(
+                                            tags[ind],
+                                            style: const TextStyle(
+                                                fontSize: 20,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.white),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding:
+                                              const EdgeInsets.only(bottom: 20),
+                                          child: IconButton(
+                                              padding: EdgeInsets.zero,
+                                              splashRadius: 25,
+                                              splashColor: const Color.fromARGB(
+                                                  68, 25, 56, 212),
+                                              onPressed: () => popLabel(ind),
+                                              icon: const Icon(
+                                                Icons.cancel,
+                                                size: 15,
+                                                color: Colors.white,
+                                              )),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                            itemCount: tags.length,
+                          ),
+                        );
+                      } else {
+                        return const Text(
+                          cDummyHint,
+                          style: TextStyle(color: Colors.white),
+                        );
+                      }
+                    },
+                  ),
+                  TextFormField(
+                    cursorColor: Colors.white,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: const InputDecoration(
+                        hoverColor: Colors.white,
+                        counterStyle: TextStyle(color: Colors.white)),
+                    maxLength: 15,
+                    onChanged: (value) {
+                      tag = value;
+                    },
+                    controller: textEditingController,
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      TextButton(
+                        onPressed: () {
+                          textEditingController.clear();
+                          Navigator.pop(context, 'Camera');
+                        },
+                        child: const Text('Cancel'),
+                      ),
+                      TextButton(
+                        autofocus: tag.trim().isNotEmpty,
+                        onPressed: () {
+                          if (tag.trim().isNotEmpty && tags.length < 6) {
+                            tags.add(tag);
+                            Note newNote = Note(
+                                id: note.id,
+                                title: note.title.toString(),
+                                date: DateTime.now(),
+                                subtitle: note.subtitle,
+                                tags: tags);
+                            update(newNote);
+                            tag = '';
+                            textEditingController.clear();
+                            setState(() {});
+                            Utils().logger(
+                                'Home Page', 'Tag list is ${tags.toString()}');
+                          } else {
+                            Utils().logger('Alert Dialog', 'Null Value');
+                          }
+                          textEditingController.clear();
+                        },
+                        child: const Text('Add'),
+                      ),
+                    ],
+                  )
+                ],
+              ),
+            ),
+          ),
+        );
+      });
+    },
+  );
 }

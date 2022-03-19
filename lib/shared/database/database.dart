@@ -7,18 +7,26 @@ class PicDataBase {
       // `path` package is best practice to ensure the path is correctly
       // constructed for each platform.
       join(await getDatabasesPath(), picNoteDB),
-      // When the database is first created, create a table to store dogs.
+      // When the database is first created, create a table to store notes.
       onCreate: (db, version) {
         // Run the CREATE TABLE statement on the database.
         return db.execute(
-          'CREATE TABLE $picNote($cId INTEGER PRIMARY KEY, $cTitle TEXT, $cSubtitle TEXT, $cDate TEXT)',
+          'CREATE TABLE $picNote($cId INTEGER PRIMARY KEY, $cTitle TEXT, $cSubtitle TEXT, $cDate TEXT, $cImageURL TEXT, $cTag TEXT)',
         );
       },
       // Set the version. This executes the onCreate function and provides a
       // path to perform database upgrades and downgrades.
-      version: 1,
+      version: 2,
+      // UPGRADE DATABASE TABLES
     );
     return database;
+  }
+
+  // ignore: unused_element
+  void _onUpgrade(Database db, int oldVersion, int newVersion) {
+    if (oldVersion < newVersion) {
+      db.execute("ALTER TABLE tabEmployee ADD COLUMN newCol TEXT;");
+    }
   }
 
   Future<Database> initID() async {
@@ -27,7 +35,7 @@ class PicDataBase {
       // `path` package is best practice to ensure the path is correctly
       // constructed for each platform.
       join(await getDatabasesPath(), currentIdDB),
-      // When the database is first created, create a table to store dogs.
+      // When the database is first created, create a table to store notes.
       onCreate: (db, version) {
         // Run the CREATE TABLE statement on the database.
         return db.execute(
@@ -73,6 +81,7 @@ class PicDataBase {
         .update(picNote, note.toMap(), where: 'id = ?', whereArgs: [note.id]);
   }
 
+  /// Returns a list of [Note]s from the Database
   Future<List<Note>> getNotes() async {
     List<Note> notes = [];
     final db = await initDB();
@@ -81,7 +90,17 @@ class PicDataBase {
     return notes;
   }
 
-  // For Notee Media
+  /// Returns the tags for a [Note] from the Database
+  Future<List<String>> getTags(int index) async {
+    List<Note> notes = [];
+    final db = await initDB();
+    final List<Map<String, dynamic>> maps = await db.query(picNote);
+    notes = mapToNote(maps);
+    List<String> tags = notes[index].tags!;
+    return tags;
+  }
+
+  // For Note Media
   Future<Database> initNMDB() async {
     final database = openDatabase(
       // Set the path to the database. Note: Using the `join` function from the

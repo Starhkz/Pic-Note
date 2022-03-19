@@ -37,3 +37,5 @@ const cOct = 'October';
 const cNov = 'November';
 const cDec = 'December';
 const cCTitle = 'Title';
+const cTag = 'tags';
+const cText = 'text';
