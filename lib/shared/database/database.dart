@@ -1,6 +1,7 @@
+import 'package:flutter/material.dart';
 import 'package:pic_note/imports.dart';
 
-class PicDataBase {
+class PicDataBase extends ChangeNotifier {
   Future<Database> initDB() async {
     final database = openDatabase(
       // Set the path to the database. Note: Using the `join` function from the
@@ -63,22 +64,27 @@ class PicDataBase {
       conflictAlgorithm: ConflictAlgorithm.replace,
     );
     final prefs = await SharedPreferences.getInstance();
-    int currentId = prefs.getInt(cCurrentID) ?? 8;
+    int currentId = prefs.getInt(cCurrentID) ?? 0;
     int newId = currentId + 1;
     await prefs.setInt(cCurrentID, newId);
-    int iD = prefs.getInt(cCurrentID) ?? 5;
-    Utils().logger('Insert Function', 'Tapped $iD');
+    notifyListeners();
   }
 
+  /// Delete a Note from the DataBase
+  /// Deleted notes cannot be restored.
+  /// Be careful when calling this function.
   removeNote(int id) async {
     final db = await initDB();
     await db.delete(picNote, where: 'id = ?', whereArgs: [id]);
+    notifyListeners();
   }
 
+  /// Updates the note with the given ID in the database
   editNote(Note note) async {
     final db = await initDB();
     await db
         .update(picNote, note.toMap(), where: 'id = ?', whereArgs: [note.id]);
+    notifyListeners();
   }
 
   /// Returns a list of [Note]s from the Database

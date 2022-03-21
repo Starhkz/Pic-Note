@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'imports.dart';
 
 class EditScreen extends StatefulWidget {
@@ -37,6 +38,18 @@ class _EditScreenState extends State<EditScreen> {
   bool firstBuild = true;
   @override
   Widget build(BuildContext context) {
+    PicDataBase picDataBase = Provider.of<PicDataBase>(context);
+
+    /// Add note to the database
+    void addNote(Note newNote) async {
+      await picDataBase.insertNote(newNote);
+    }
+
+    /// Updates an existing [Note]
+    void update(Note newNote) async {
+      await picDataBase.editNote(newNote);
+    }
+
     bool isNew = widget.isNew;
     String? _title;
     DateTime? date;
@@ -92,7 +105,6 @@ class _EditScreenState extends State<EditScreen> {
               cEditNote, 'Tapped Add Image ${noteGallery![nMID].imageUrl}');
           addTextField();
           _formKey.currentState!.save();
-          setState(() {});
         },
         child: const Icon(Icons.camera),
       ),
@@ -207,6 +219,7 @@ class _EditScreenState extends State<EditScreen> {
                   ),
                   onChanged: (value) {
                     Utils().logger('Edit Screen', value);
+
                     _title = value;
                   },
                 ),
@@ -244,16 +257,6 @@ class _EditScreenState extends State<EditScreen> {
   /// Returns you to the home screen from any point in the app
   navHome(BuildContext context) {
     return Navigator.pop(context);
-  }
-
-  /// Add note to the database
-  void addNote(Note newNote) async {
-    await PicDataBase().insertNote(newNote);
-  }
-
-  /// Updates an existing [Note]
-  void update(Note newNote) async {
-    await PicDataBase().editNote(newNote);
   }
 
   /// Retrieves the ID for the particular note
