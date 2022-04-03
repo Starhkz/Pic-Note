@@ -25,11 +25,14 @@ class _EditScreenState extends State<EditScreen> {
   bool canSave = true;
   List<XFile>? imageFile;
   List<NoteMedia>? noteGallery;
+
+  String? title;
+
+  bool showDelete = false;
   @override
   void initState() {
     super.initState();
     initStore();
-
     if (!widget.isNew) extractNoteMedia();
   }
 
@@ -58,7 +61,8 @@ class _EditScreenState extends State<EditScreen> {
     if (!isNew) {
       canSave = true;
       note = widget.note!;
-      _title = note.title;
+      _title = title ?? note.title;
+      Utils().logger('Edit Screen', 'Checked Not New');
       date = note.date;
       dateString = Date.toDate(date).dateTime;
     } else if (firstBuild) {
@@ -68,26 +72,36 @@ class _EditScreenState extends State<EditScreen> {
       Utils().logger('Edit Screen',
           'The list has  ${noteGallery!.length.toString()} element(s)');
     }
+
+    if (isNew) {
+      _title = title ?? '';
+    }
     dateString ??= Date.toDate(DateTime.now()).date;
     void addTab(NoteMedia newNoteMedia) async {
       noteGallery!.add(newNoteMedia);
     }
 
     final titleController = TextEditingController(text: _title);
-    void addTextField() {
+    void addTextField() async {
+      final prefs = await SharedPreferences.getInstance();
       int nMID = noteGallery!.length;
       NoteMedia newNoteMedia =
           NoteMedia(id: nMID, isMedia: false, imageUrl: null, note: '');
 
       addTab(newNoteMedia);
       Utils().logger(cEditNote, 'Added Text Field $nMID');
-      setState(() {});
-      Utils().logger('Text Field', canSave.toString());
+      setState(() {
+        title = prefs.getString(cTitle) ?? '';
+      });
+      Utils().logger('Text Field', title.toString());
     }
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
+          Utils().logger('Edit Screen', 'The value of Title is: $_title');
+          final prefs = await SharedPreferences.getInstance();
+          await prefs.setString(cTitle, _title ?? '');
           imageFile = await popDialog(context);
 
           int nMID = noteGallery!.length;
@@ -99,25 +113,28 @@ class _EditScreenState extends State<EditScreen> {
                 note: '');
             addTab(newNoteMedia);
           } else {
+            setState(() {
+              title = prefs.getString(cTitle) ?? '';
+            });
             return;
           }
           Utils().logger(
               cEditNote, 'Tapped Add Image ${noteGallery![nMID].imageUrl}');
           addTextField();
-          _formKey.currentState!.save();
         },
         child: const Icon(Icons.camera),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       appBar: AppBar(
         backgroundColor: Colors.black,
-        leading: GestureDetector(
-          onTap: () => {navHome(context)},
-          child: const Icon(
+        leading: IconButton(
+          tooltip: 'Back',
+          icon: const Icon(
             Icons.arrow_back,
             size: 30,
             color: Colors.blue,
           ),
+          onPressed: () => {navHome(context)},
         ),
         title: Text(
           isNew ? cNewNote : cEditNote,
@@ -130,9 +147,17 @@ class _EditScreenState extends State<EditScreen> {
         actions: [
           Padding(
             padding: const EdgeInsets.fromLTRB(0, 0, 15, 0),
-            child: GestureDetector(
-              onTap: () {
-                if (noteGallery![0].note == 'null' ||
+            child: IconButton(
+              tooltip: isNew ? 'Save' : 'Update',
+              icon: Icon(
+                isNew ? Icons.check : Icons.update,
+                size: 30,
+                color: Colors.blue,
+              ),
+              onPressed: () async {
+                if (noteGallery == null) {
+                  canSave = false;
+                } else if (noteGallery![0].note == 'null' ||
                     noteGallery![0].note == null ||
                     noteGallery![0].note == '') {
                   canSave = false;
@@ -159,11 +184,11 @@ class _EditScreenState extends State<EditScreen> {
                   } else {
                     Utils().logger('Edit Screen', 'Updated ${widget.id}');
                     Note newNote = Note(
-                        id: note!.id,
-                        title: titleController.text,
-                        date: DateTime.now(),
-                        subtitle: NoteMedia.encode(noteGallery!),
-                        tags: ['Tag ${note.id}']);
+                      id: note!.id,
+                      title: titleController.text,
+                      date: DateTime.now(),
+                      subtitle: NoteMedia.encode(noteGallery!),
+                    );
                     update(newNote);
                     Utils().logger('Edit Screen',
                         'Update: Save Test - ${newNote.subtitle}');
@@ -172,11 +197,6 @@ class _EditScreenState extends State<EditScreen> {
 
                 navHome(context);
               },
-              child: Icon(
-                isNew ? Icons.check : Icons.update,
-                color: Colors.blue,
-                size: 30,
-              ),
             ),
           )
         ],
@@ -228,8 +248,39 @@ class _EditScreenState extends State<EditScreen> {
                 height: 10,
               ),
               Flexible(
-                child: noteWidget(noteGallery!, context),
-              )
+                  child: Stack(
+                children: [
+                  noteWidget(noteGallery!, context),
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: GestureDetector(
+                      onTap: () => {addTextField()},
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(0, 0, 8, 8),
+                        child: Container(
+                          height: 30,
+                          width: 70,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(15),
+                              color: const Color.fromARGB(255, 59, 151, 236)),
+                          child: const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text(
+                                'Add Note',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              )),
             ],
           ),
         ),
@@ -246,9 +297,23 @@ class _EditScreenState extends State<EditScreen> {
       itemBuilder: (BuildContext context, int index) {
         // Why network for web?
         // See https://pub.dev/packages/image_picker#getting-ready-for-the-web-platform
-        return Semantics(
-            label: 'image_picker_example_picked_image',
-            child: tile(noteMedia[index], index));
+        return GestureDetector(
+          onLongPress: (() {
+            setState(() {
+              showDelete = !showDelete;
+            });
+          }),
+          child: Stack(
+            children: [
+              Align(
+                  child: Padding(
+                padding: const EdgeInsets.only(top: 0),
+                child: tile(noteMedia[index], index),
+              )),
+              displayTile(index),
+            ],
+          ),
+        );
       },
       itemCount: noteMedia.length,
     );
@@ -262,7 +327,7 @@ class _EditScreenState extends State<EditScreen> {
   /// Retrieves the ID for the particular note
   void initStore() async {
     final prefs = await SharedPreferences.getInstance();
-    id = prefs.getInt(cCurrentID)!;
+    id = prefs.getInt(cCurrentID) ?? 0;
   }
 
   /// Converts encoded string stored in the datatabase to a list of NoteMedia
@@ -305,6 +370,29 @@ class _EditScreenState extends State<EditScreen> {
           },
         ),
       );
+    }
+  }
+
+  /// Used to include the logic for displaying the delete button
+  displayTile(int index) {
+    if (showDelete) {
+      return Align(
+          alignment: Alignment.topRight,
+          child: IconButton(
+              tooltip: 'Delete',
+              padding: const EdgeInsets.only(right: 6),
+              onPressed: () {
+                setState(() {
+                  noteGallery!.removeAt(index);
+                });
+              },
+              icon: const Icon(
+                Icons.delete_sharp,
+                color: Color.fromARGB(255, 185, 22, 10),
+                size: 25,
+              )));
+    } else {
+      return const SizedBox();
     }
   }
 }
