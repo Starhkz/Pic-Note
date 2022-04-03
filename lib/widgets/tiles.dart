@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:pic_note/imports.dart';
 
@@ -14,7 +16,20 @@ bool triggered = false;
 class _NoteTileState extends State<NoteTile> {
   @override
   Widget build(BuildContext context) {
+    NoteMedia? image;
+    bool containsImage = false;
+    String imageUrl = '';
     Note note = widget.note;
+    List<NoteMedia>? noteGallery;
+    if (note.subtitle != null && note.subtitle != 'null') {
+      String encodedList = note.subtitle.toString();
+      noteGallery = NoteMedia.decode(encodedList);
+      containsImage = noteGallery.any((element) => element.isMedia);
+    }
+    if (containsImage) {
+      image = noteGallery!.firstWhere((element) => element.isMedia);
+      imageUrl = image.imageUrl.toString();
+    }
     String subtitle = '';
     Date date = Date.toDate(note.date);
     if (note.subtitle != null && note.subtitle != 'null') {
@@ -100,11 +115,12 @@ class _NoteTileState extends State<NoteTile> {
                             fontSize: 15,
                             fontWeight: FontWeight.w500,
                             color: Colors.white),
+                        maxLines: 1,
                       ),
                       const SizedBox(
                         height: 5,
                       ),
-                      Text(note.id.toString(),
+                      Text(date.dateTime,
                           style: const TextStyle(color: Colors.white)),
                       const SizedBox(
                         height: 7,
@@ -113,25 +129,48 @@ class _NoteTileState extends State<NoteTile> {
                   ),
                 ),
               ),
-              GestureDetector(
-                onTap: () {
-                  popDialog(context);
-                  log(
-                    'Tapped image Area of ${widget.note.id}',
-                    name: 'Tile',
-                  );
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(10),
-                  child: Container(
-                    width: MediaQuery.of(context).size.width * 0.79 * 0.2,
-                    height: MediaQuery.of(context).size.width * 0.79 * 0.2,
-                    decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        color: Colors.blue),
-                  ),
-                ),
-              )
+              containsImage
+                  ? GestureDetector(
+                      onTap: () {
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                  backgroundColor:
+                                      const Color.fromARGB(255, 59, 59, 59),
+                                  contentPadding: EdgeInsets.zero,
+                                  content: Image.file(
+                                    File(imageUrl),
+                                    // width: MediaQuery.of(context).size.width *
+                                    //     0.79 *
+                                    //     0.8,
+                                    height: MediaQuery.of(context).size.width *
+                                        0.79 *
+                                        0.8,
+                                  ));
+                            });
+                        log(
+                          'Tapped image Area of ${widget.note.id}',
+                          name: 'Tile',
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.all(10),
+                        child: Container(
+                          width: MediaQuery.of(context).size.width * 0.79 * 0.2,
+                          height:
+                              MediaQuery.of(context).size.width * 0.79 * 0.2,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              color: Colors.blue,
+                              image: DecorationImage(
+                                image: FileImage(File(imageUrl)),
+                                fit: BoxFit.cover,
+                              )),
+                        ),
+                      ),
+                    )
+                  : const SizedBox()
             ],
           ),
         ));
