@@ -44,50 +44,27 @@ class _HomeState extends State<Home> {
       ),
       backgroundColor: Colors.black,
       appBar: AppBar(
-        toolbarHeight: 130,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.search, size: 30, color: Colors.white),
+            onPressed: () async {
+              List<Note> notes = await picDataBase.getNotes();
+              showSearch(context: context, delegate: SearchBar(notes: notes));
+            },
+          ),
+        ],
         elevation: 0,
-        title: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            GestureDetector(
-              onTap: () => refreshList(),
-              child: const Text(
-                'NOTEPAD',
-                style: TextStyle(
-                    color: Color(0xFFFFFFFF),
-                    fontSize: 30,
-                    fontWeight: FontWeight.w600),
-              ),
-            ),
-            const SizedBox(
-              height: 20,
-            ),
-            Container(
-              height: 45,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(50),
-                  color: const Color(0xFF242424)),
-              child: const TextField(
-                style: TextStyle(color: Colors.white, fontSize: 22),
-                decoration: InputDecoration(
-                    hintStyle: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                    ),
-                    hintText: "Search for notes",
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
-                    icon: Padding(
-                      padding: EdgeInsets.fromLTRB(10, 12, 0, 0),
-                      child: Icon(
-                        Icons.search,
-                        size: 30,
-                      ),
-                    )),
-              ),
-            )
-          ],
+        title: GestureDetector(
+          onTap: () => refreshList(),
+          child: const Text(
+            'NOTEPAD',
+            style: TextStyle(
+                color: Color(0xFFFFFFFF),
+                fontSize: 30,
+                fontWeight: FontWeight.w600),
+          ),
         ),
+        centerTitle: true,
         backgroundColor: Colors.black,
       ),
       body: RefreshIndicator(
@@ -197,7 +174,7 @@ class _HomeState extends State<Home> {
 }
 
 labelDialog(BuildContext context, Note note, int index) async {
-  PicDataBase picDataBase = Provider.of<PicDataBase>(context);
+  PicDataBase picDataBase = Provider.of<PicDataBase>(context, listen: false);
   List<String> tags = [];
 
   String tag = '';
@@ -245,6 +222,7 @@ labelDialog(BuildContext context, Note note, int index) async {
                         return SizedBox(
                           height: 40,
                           child: ListView.builder(
+                            reverse: true,
                             scrollDirection: Axis.horizontal,
                             shrinkWrap: true,
                             key: UniqueKey(),

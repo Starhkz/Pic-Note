@@ -147,3 +147,67 @@ class Date {
     return Date(date, month, day, year, hour, minute, period, time, dateTime);
   }
 }
+
+class SearchBar extends SearchDelegate<Note> {
+  @override
+  ThemeData appBarTheme(BuildContext context) {
+    return ThemeData.dark();
+  }
+
+  final List<Note> notes;
+  SearchBar({
+    required this.notes,
+  });
+  @override
+  List<Widget>? buildActions(BuildContext context) {
+    return [
+      IconButton(onPressed: () => {query = ''}, icon: const Icon(Icons.clear))
+    ];
+  }
+
+  @override
+  Widget? buildLeading(BuildContext context) {
+    return IconButton(
+        onPressed: () => {
+              close(context, notes[0]),
+            },
+        icon: const Icon(Icons.arrow_back));
+  }
+
+  @override
+  Widget buildResults(BuildContext context) {
+    return ListView(
+      children: notes
+          .where((element) =>
+              element.title.toLowerCase().contains(query.toLowerCase()) ||
+              element.subtitle
+                  .toString()
+                  .toLowerCase()
+                  .contains(query.toLowerCase()))
+          .map((element) => NoteTile(
+                note: element,
+              ))
+          .toList(),
+    );
+  }
+
+  @override
+  Widget buildSuggestions(BuildContext context) {
+    return ListView(
+      children: notes
+          .where((element) =>
+              element.title.toLowerCase().contains(query.toLowerCase()) ||
+              element.subtitle
+                  .toString()
+                  .toLowerCase()
+                  .contains(query.toLowerCase()))
+          .map((element) => Padding(
+                padding: const EdgeInsets.symmetric(vertical: 5),
+                child: NoteTile(
+                  note: element,
+                ),
+              ))
+          .toList(),
+    );
+  }
+}
