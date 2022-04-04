@@ -126,20 +126,17 @@ class _EditScreenState extends State<EditScreen> {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       appBar: AppBar(
-        backgroundColor: Colors.black,
         leading: IconButton(
           tooltip: 'Back',
           icon: const Icon(
             Icons.arrow_back,
             size: 30,
-            color: Colors.blue,
           ),
           onPressed: () => {navHome(context)},
         ),
         title: Text(
           isNew ? cNewNote : cEditNote,
           style: const TextStyle(
-            color: Colors.white,
             fontSize: 20,
             fontWeight: FontWeight.bold,
           ),
@@ -152,7 +149,6 @@ class _EditScreenState extends State<EditScreen> {
               icon: Icon(
                 isNew ? Icons.check : Icons.update,
                 size: 30,
-                color: Colors.blue,
               ),
               onPressed: () async {
                 if (noteGallery == null) {
@@ -213,10 +209,10 @@ class _EditScreenState extends State<EditScreen> {
                 height: 20,
                 child: Text(
                   dateString,
-                  style: const TextStyle(
+                  style: TextStyle(
+                    color: Theme.of(context).textTheme.headline1!.color,
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
-                    color: Colors.white,
                   ),
                 ),
               ),
@@ -227,15 +223,18 @@ class _EditScreenState extends State<EditScreen> {
                 height: 25,
                 child: TextFormField(
                   controller: titleController,
-                  style: const TextStyle(color: Colors.white, fontSize: 22),
-                  decoration: const InputDecoration(
+                  style: TextStyle(
+                    fontSize: 22,
+                    color: Theme.of(context).textTheme.headline1!.color,
+                  ),
+                  decoration: InputDecoration(
                     hintStyle: TextStyle(
-                      color: Colors.white60,
                       fontSize: 20,
+                      color: Theme.of(context).textTheme.headline1!.color,
                     ),
                     hintText: cCTitle,
                     border: InputBorder.none,
-                    contentPadding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+                    contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
                   ),
                   onChanged: (value) {
                     Utils().logger('Edit Screen', value);
@@ -263,14 +262,17 @@ class _EditScreenState extends State<EditScreen> {
                           decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(15),
                               color: const Color.fromARGB(255, 59, 151, 236)),
-                          child: const Center(
+                          child: Center(
                             child: Padding(
-                              padding: EdgeInsets.all(8.0),
+                              padding: const EdgeInsets.all(8.0),
                               child: Text(
                                 'Add Note',
                                 style: TextStyle(
-                                  color: Colors.white,
                                   fontSize: 15,
+                                  color: Theme.of(context)
+                                      .textTheme
+                                      .headline1!
+                                      .color,
                                 ),
                               ),
                             ),
@@ -347,29 +349,34 @@ class _EditScreenState extends State<EditScreen> {
         child: Image.file(File(noteMedia.imageUrl.toString())),
       );
     } else {
-      return SizedBox(
-        child: TextFormField(
-          initialValue: noteMedia.note,
-          maxLines: null,
-          textCapitalization: TextCapitalization.sentences,
-          style: const TextStyle(color: Colors.white, fontSize: 18),
-          decoration: const InputDecoration(
-            hintStyle: TextStyle(
-              color: Colors.white38,
-              fontSize: 17,
+      return Builder(builder: (context) {
+        return SizedBox(
+          child: TextFormField(
+            initialValue: noteMedia.note,
+            maxLines: null,
+            textCapitalization: TextCapitalization.sentences,
+            style: TextStyle(
+              fontSize: 18,
+              color: Theme.of(context).textTheme.headline1!.color,
             ),
-            hintText: cDummyHint,
-            border: InputBorder.none,
-            contentPadding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+            decoration: InputDecoration(
+              hintStyle: TextStyle(
+                fontSize: 17,
+                color: Theme.of(context).textTheme.headline1!.color,
+              ),
+              hintText: cDummyHint,
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+            ),
+            onChanged: (value) {
+              Utils().logger('Edit Screen', value);
+              noteGallery![index].note = value;
+              Utils().logger('Saved Value',
+                  'The list has  ${noteGallery![index].note.toString()}');
+            },
           ),
-          onChanged: (value) {
-            Utils().logger('Edit Screen', value);
-            noteGallery![index].note = value;
-            Utils().logger('Saved Value',
-                'The list has  ${noteGallery![index].note.toString()}');
-          },
-        ),
-      );
+        );
+      });
     }
   }
 
@@ -388,7 +395,6 @@ class _EditScreenState extends State<EditScreen> {
               },
               icon: const Icon(
                 Icons.delete_sharp,
-                color: Color.fromARGB(255, 185, 22, 10),
                 size: 25,
               )));
     } else {

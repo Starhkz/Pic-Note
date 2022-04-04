@@ -38,15 +38,13 @@ class _HomeState extends State<Home> {
         },
         child: const Icon(
           Icons.add,
-          color: Colors.white,
           size: 30,
         ),
       ),
-      backgroundColor: Colors.black,
       appBar: AppBar(
         actions: [
           IconButton(
-            icon: const Icon(Icons.search, size: 30, color: Colors.white),
+            icon: const Icon(Icons.search, size: 30),
             onPressed: () async {
               List<Note> notes = await picDataBase.getNotes();
               showSearch(context: context, delegate: SearchBar(notes: notes));
@@ -58,14 +56,10 @@ class _HomeState extends State<Home> {
           onTap: () => refreshList(),
           child: const Text(
             'NOTEPAD',
-            style: TextStyle(
-                color: Color(0xFFFFFFFF),
-                fontSize: 30,
-                fontWeight: FontWeight.w600),
+            style: TextStyle(fontSize: 30, fontWeight: FontWeight.w600),
           ),
         ),
         centerTitle: true,
-        backgroundColor: Colors.black,
       ),
       body: RefreshIndicator(
           onRefresh: () {
@@ -96,10 +90,7 @@ class _HomeState extends State<Home> {
           return const Center(
             child: Text(
               cDummyHint,
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 30,
-                  fontStyle: FontStyle.italic),
+              style: TextStyle(fontSize: 30, fontStyle: FontStyle.italic),
             ),
           );
         }
@@ -203,11 +194,9 @@ labelDialog(BuildContext context, Note note, int index) async {
         }
 
         return AlertDialog(
-          backgroundColor: const Color.fromARGB(255, 59, 59, 59),
           title: const Center(
               child: Text(
             'Update Labels',
-            style: TextStyle(color: Colors.white),
           )),
           content: SizedBox(
             height: 160,
@@ -245,10 +234,13 @@ labelDialog(BuildContext context, Note note, int index) async {
                                         Center(
                                           child: Text(
                                             tags[ind],
-                                            style: const TextStyle(
+                                            style: TextStyle(
                                                 fontSize: 20,
                                                 fontWeight: FontWeight.bold,
-                                                color: Colors.white),
+                                                color: Theme.of(context)
+                                                    .textTheme
+                                                    .headline1!
+                                                    .color),
                                           ),
                                         ),
                                         Padding(
@@ -278,17 +270,19 @@ labelDialog(BuildContext context, Note note, int index) async {
                       } else {
                         return const Text(
                           cDummyHint,
-                          style: TextStyle(color: Colors.white),
                         );
                       }
                     },
                   ),
                   TextFormField(
-                    cursorColor: Colors.white,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: const InputDecoration(
+                    cursorColor: Theme.of(context).textTheme.headline1!.color,
+                    style: TextStyle(
+                        color: Theme.of(context).textTheme.headline1!.color),
+                    decoration: InputDecoration(
                         hoverColor: Colors.white,
-                        counterStyle: TextStyle(color: Colors.white)),
+                        counterStyle: TextStyle(
+                            color:
+                                Theme.of(context).textTheme.headline1!.color)),
                     maxLength: 15,
                     onChanged: (value) {
                       tag = value;

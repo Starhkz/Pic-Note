@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'imports.dart';
+import 'shared/styling/theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -23,11 +24,10 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
         debugShowCheckedModeBanner: false,
-        title: 'Flutter Demo',
-        theme: ThemeData(
-          scaffoldBackgroundColor: Colors.black,
-          primarySwatch: Colors.blue,
-        ),
+        title: 'Pic Note',
+        darkTheme: customDarkTheme(),
+        theme: customLightTheme(),
+        themeMode: ThemeMode.system,
         home: const Home());
   }
 }

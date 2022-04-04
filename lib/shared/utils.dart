@@ -64,14 +64,12 @@ previewImages(List<XFile>? pickedFiles) {
       return const Text(
         'Pick image error: ',
         textAlign: TextAlign.center,
-        style: TextStyle(color: Colors.white),
       );
     }
   } else {
     return const Text(
       'You have not yet picked an image.',
       textAlign: TextAlign.center,
-      style: TextStyle(color: Colors.white),
     );
   }
 }
@@ -151,7 +149,7 @@ class Date {
 class SearchBar extends SearchDelegate<Note> {
   @override
   ThemeData appBarTheme(BuildContext context) {
-    return ThemeData.dark();
+    return Theme.of(context);
   }
 
   final List<Note> notes;

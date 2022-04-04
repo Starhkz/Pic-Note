@@ -68,7 +68,7 @@ class _NoteTileState extends State<NoteTile> {
         child: AnimatedContainer(
           decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(15),
-              color: const Color(0xFF242424)),
+              color: Theme.of(context).primaryColor),
           onEnd: () {
             setState(() {
               if (triggered) {
@@ -99,10 +99,11 @@ class _NoteTileState extends State<NoteTile> {
                       Text(
                         widget.note.title,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontSize: 22,
                             fontWeight: FontWeight.bold,
-                            color: Colors.white),
+                            color:
+                                Theme.of(context).textTheme.headline1!.color),
                       ),
                       const SizedBox(
                         height: 5,
@@ -111,17 +112,22 @@ class _NoteTileState extends State<NoteTile> {
                       Text(
                         subtitle,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.white),
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w500,
+                          color: Theme.of(context).textTheme.headline1!.color,
+                        ),
                         maxLines: 1,
                       ),
                       const SizedBox(
                         height: 5,
                       ),
-                      Text(date.dateTime,
-                          style: const TextStyle(color: Colors.white)),
+                      Text(
+                        date.dateTime,
+                        style: TextStyle(
+                          color: Theme.of(context).textTheme.headline1!.color,
+                        ),
+                      ),
                       const SizedBox(
                         height: 7,
                       )
@@ -136,14 +142,9 @@ class _NoteTileState extends State<NoteTile> {
                             context: context,
                             builder: (BuildContext context) {
                               return AlertDialog(
-                                  backgroundColor:
-                                      const Color.fromARGB(255, 59, 59, 59),
                                   contentPadding: EdgeInsets.zero,
                                   content: Image.file(
                                     File(imageUrl),
-                                    // width: MediaQuery.of(context).size.width *
-                                    //     0.79 *
-                                    //     0.8,
                                     height: MediaQuery.of(context).size.width *
                                         0.79 *
                                         0.8,
