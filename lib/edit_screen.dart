@@ -230,7 +230,7 @@ class _EditScreenState extends State<EditScreen> {
                   decoration: InputDecoration(
                     hintStyle: TextStyle(
                       fontSize: 20,
-                      color: Theme.of(context).textTheme.headline1!.color,
+                      color: Theme.of(context).textTheme.bodyText1!.color,
                     ),
                     hintText: cCTitle,
                     border: InputBorder.none,
@@ -337,7 +337,12 @@ class _EditScreenState extends State<EditScreen> {
     Note? note = widget.note;
     if (note!.subtitle != null && note.subtitle != 'null') {
       String encodedList = note.subtitle.toString();
-      noteGallery = NoteMedia.decode(encodedList);
+      try {
+        noteGallery = NoteMedia.decode(encodedList);
+      } catch (e) {
+        noteGallery = [];
+        noteGallery?.add(NoteMedia(id: id, isMedia: false, note: encodedList));
+      }
     }
   }
 
@@ -362,7 +367,7 @@ class _EditScreenState extends State<EditScreen> {
             decoration: InputDecoration(
               hintStyle: TextStyle(
                 fontSize: 17,
-                color: Theme.of(context).textTheme.headline1!.color,
+                color: Theme.of(context).textTheme.bodyText1!.color,
               ),
               hintText: cDummyHint,
               border: InputBorder.none,
@@ -409,8 +414,8 @@ Future<List<XFile>?>? popDialog(context) async {
   await showDialog(
     context: context,
     builder: (BuildContext context) => AlertDialog(
-      title: const Text('Upload Photo'),
-      content: const Text('Photo'),
+      title: const Center(child: Text('Upload Photo')),
+      actionsAlignment: MainAxisAlignment.spaceAround,
       actions: <Widget>[
         TextButton(
           onPressed: () {

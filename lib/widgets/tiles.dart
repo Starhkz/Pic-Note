@@ -23,8 +23,12 @@ class _NoteTileState extends State<NoteTile> {
     List<NoteMedia>? noteGallery;
     if (note.subtitle != null && note.subtitle != 'null') {
       String encodedList = note.subtitle.toString();
-      noteGallery = NoteMedia.decode(encodedList);
-      containsImage = noteGallery.any((element) => element.isMedia);
+      try {
+        noteGallery = NoteMedia.decode(encodedList);
+        containsImage = noteGallery.any((element) => element.isMedia);
+      } catch (e) {
+        containsImage = false;
+      }
     }
     if (containsImage) {
       image = noteGallery!.firstWhere((element) => element.isMedia);
@@ -34,8 +38,12 @@ class _NoteTileState extends State<NoteTile> {
     Date date = Date.toDate(note.date);
     if (note.subtitle != null && note.subtitle != 'null') {
       String encodedData = note.subtitle.toString();
-      List<NoteMedia> noteMedia = NoteMedia.decode(encodedData);
-      subtitle = noteMedia[0].note.toString();
+      try {
+        List<NoteMedia> noteMedia = NoteMedia.decode(encodedData);
+        subtitle = noteMedia[0].note.toString();
+      } catch (e) {
+        subtitle = 'Error';
+      }
     }
 
     return GestureDetector(

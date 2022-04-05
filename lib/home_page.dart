@@ -210,7 +210,9 @@ labelDialog(BuildContext context, Note note, int index) async {
                         tags = snapshot.data!;
                         return SizedBox(
                           height: 40,
+                          width: MediaQuery.of(context).size.width,
                           child: ListView.builder(
+                            physics: const BouncingScrollPhysics(),
                             reverse: true,
                             scrollDirection: Axis.horizontal,
                             shrinkWrap: true,

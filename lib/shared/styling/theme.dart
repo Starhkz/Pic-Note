@@ -41,10 +41,10 @@ ThemeData customLightTheme() {
         ),
       ).headline6,
       iconTheme: lightTheme.iconTheme.copyWith(
-        color: Colors.blue,
+        color: const Color.fromARGB(255, 15, 84, 153),
       ),
       actionsIconTheme: lightTheme.iconTheme.copyWith(
-        color: Colors.blue,
+        color: const Color.fromARGB(255, 15, 84, 153),
       ),
     ),
     textTheme: const TextTheme(
@@ -75,7 +75,7 @@ ThemeData customLightTheme() {
         color: AppColors.grey,
       ),
       bodyText1: TextStyle(
-        color: AppColors.grey,
+        color: Color.fromARGB(255, 85, 84, 84),
       ),
     ),
   );
@@ -145,7 +145,7 @@ ThemeData customDarkTheme() {
         color: AppColors.grey,
       ),
       bodyText1: TextStyle(
-        color: AppColors.grey,
+        color: Color.fromARGB(255, 131, 130, 130),
       ),
     ),
   );
