@@ -24,7 +24,7 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     PicDataBase picDataBase = Provider.of<PicDataBase>(context);
     double width = MediaQuery.of(context).size.width;
-    width *= 0.99;
+    // width *= 0.99;
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () => {
@@ -66,11 +66,13 @@ class _HomeState extends State<Home> {
             setState(() {});
             return picDataBase.getNotes();
           },
-          child: SizedBox(
-              width: width,
-              child: Consumer<PicDataBase>(builder: (_, value, __) {
-                return noteList(value);
-              }))),
+          child: Center(
+            child: SizedBox(
+                width: width,
+                child: Consumer<PicDataBase>(builder: (_, value, __) {
+                  return noteList(value);
+                })),
+          )),
     );
   }
 
