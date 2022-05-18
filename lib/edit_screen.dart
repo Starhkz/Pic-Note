@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:pic_note/widgets/bubble.dart';
 import 'package:provider/provider.dart';
 import 'imports.dart';
 
@@ -124,7 +125,7 @@ class _EditScreenState extends State<EditScreen> {
         },
         child: const Icon(Icons.camera),
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       appBar: AppBar(
         leading: IconButton(
           tooltip: 'Back',
@@ -225,6 +226,7 @@ class _EditScreenState extends State<EditScreen> {
                   controller: titleController,
                   style: TextStyle(
                     fontSize: 22,
+                    fontWeight: FontWeight.bold,
                     color: Theme.of(context).textTheme.headline1!.color,
                   ),
                   decoration: InputDecoration(
@@ -253,33 +255,15 @@ class _EditScreenState extends State<EditScreen> {
                   Align(
                     alignment: Alignment.bottomRight,
                     child: GestureDetector(
-                      onTap: () => {addTextField()},
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(0, 0, 8, 8),
-                        child: Container(
-                          height: 30,
-                          width: 70,
-                          decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(15),
-                              color: const Color.fromARGB(255, 59, 151, 236)),
-                          child: Center(
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Text(
-                                'Add Note',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: Theme.of(context)
-                                      .textTheme
-                                      .headline1!
-                                      .color,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                        onTap: () => {addTextField()},
+                        child: const Bubble(
+                            width: 70,
+                            height: 30,
+                            child: Text(
+                              'Add Note',
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.bold),
+                            ))),
                   )
                 ],
               )),
