@@ -42,6 +42,11 @@ class Utils {
       return [];
     }
   }
+
+  /// Updates the note with the new data
+  void update(Note newNote, PicDataBase picDataBase) async {
+    await picDataBase.editNote(newNote);
+  }
 }
 
 /// Returns the [Image] widget if available
@@ -147,6 +152,8 @@ class Date {
 }
 
 class SearchBar extends SearchDelegate<Note> {
+  bool shrinkAll = true;
+
   @override
   ThemeData appBarTheme(BuildContext context) {
     return Theme.of(context);
@@ -184,6 +191,7 @@ class SearchBar extends SearchDelegate<Note> {
                   .contains(query.toLowerCase()))
           .map((element) => NoteTile(
                 note: element,
+                shrinkTile: shrinkAll,
               ))
           .toList(),
     );
@@ -203,9 +211,77 @@ class SearchBar extends SearchDelegate<Note> {
                 padding: const EdgeInsets.symmetric(vertical: 5),
                 child: NoteTile(
                   note: element,
+                  shrinkTile: shrinkAll,
                 ),
               ))
           .toList(),
     );
   }
+}
+
+class ShrinkAll extends ChangeNotifier {
+  static bool shrinkAll = false;
+  void shrinkAllToggle() {
+    shrinkAll = !shrinkAll;
+    notifyListeners();
+  }
+
+  //getter
+  bool get getShrinkAll => shrinkAll;
+  // setter
+  set setShrinkAll(bool value) {
+    shrinkAll = value;
+    notifyListeners();
+  }
+}
+
+Future<dynamic> exitPrompt(BuildContext context, void Function() save) {
+  navHome(BuildContext context) {
+    return Navigator.pop(context);
+  }
+
+  return showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text(
+          cExitConfirmation,
+          style: TextStyle(color: Theme.of(context).textTheme.headline1!.color),
+        ),
+        actions: <Widget>[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: <Widget>[
+              TextButton(
+                child: Text(
+                  cSave,
+                  style: TextStyle(
+                      color: Theme.of(context).textTheme.headline1!.color),
+                ),
+                onPressed: () {
+                  save();
+                  // ShrinkAll().shrinkAllToggle();
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: Text(
+                  cDiscard,
+                  style: TextStyle(
+                      color: Theme.of(context).textTheme.headline1!.color),
+                ),
+                onPressed: () {
+                  //Discard
+                  Utils().logger(cEditNote, cDiscButtonTapped);
+                  // ShrinkAll().shrinkAllToggle();
+                  navHome(context);
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          )
+        ],
+      );
+    },
+  );
 }
