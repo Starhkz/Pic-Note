@@ -84,6 +84,11 @@ ThemeData customLightTheme() {
 ThemeData customDarkTheme() {
   final ThemeData darkTheme = ThemeData.dark();
   return darkTheme.copyWith(
+    //Dark floating action button theme
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      backgroundColor: Color.fromARGB(255, 71, 71, 121),
+    ),
+
     primaryColor: AppColors.grey,
     primaryColorDark: AppColors.white,
     indicatorColor: AppColors.silver,
