@@ -1,8 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:pic_note/widgets/bubble.dart';
-import 'package:provider/provider.dart';
+
 import 'imports.dart';
 
 class EditScreen extends StatefulWidget {
@@ -44,6 +43,11 @@ class _EditScreenState extends State<EditScreen> {
   Widget build(BuildContext context) {
     PicDataBase picDataBase = Provider.of<PicDataBase>(context);
 
+    ///Returns true if the last note is media
+    bool canDisplayAddNote() {
+      return noteGallery!.last.isMedia;
+    }
+
     /// Add note to the database
     void addNote(Note newNote) async {
       await picDataBase.insertNote(newNote);
@@ -63,14 +67,14 @@ class _EditScreenState extends State<EditScreen> {
       canSave = true;
       note = widget.note!;
       _title = title ?? note.title;
-      Utils().logger('Edit Screen', 'Checked Not New');
+      Utils().logger(cEditNote, cNotNew);
       date = note.date;
       dateString = Date.toDate(date).dateTime;
     } else if (firstBuild) {
       firstBuild = false;
       noteGallery ??= [];
       noteGallery!.add(NoteMedia(id: id, isMedia: false));
-      Utils().logger('Edit Screen',
+      Utils().logger(cEditNote,
           'The list has  ${noteGallery!.length.toString()} element(s)');
     }
 
@@ -94,180 +98,248 @@ class _EditScreenState extends State<EditScreen> {
       setState(() {
         title = prefs.getString(cTitle) ?? '';
       });
-      Utils().logger('Text Field', title.toString());
+      Utils().logger(cTextField, title.toString());
     }
 
-    return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          Utils().logger('Edit Screen', 'The value of Title is: $_title');
-          final prefs = await SharedPreferences.getInstance();
-          await prefs.setString(cTitle, _title ?? '');
-          imageFile = await popDialog(context);
-
-          int nMID = noteGallery!.length;
-          if (imageFile != null) {
-            NoteMedia newNoteMedia = NoteMedia(
-                id: nMID,
-                isMedia: true,
-                imageUrl: imageFile![0].path,
-                note: '');
-            addTab(newNoteMedia);
-          } else {
-            setState(() {
-              title = prefs.getString(cTitle) ?? '';
-            });
+    if (noteGallery == null) {
+      canSave = false;
+    } else if (noteGallery![0].note == 'null' ||
+        noteGallery![0].note == null ||
+        noteGallery![0].note == '') {
+      canSave = false;
+    }
+    save() {
+      Utils().logger(cEditNote, cSaveButtonTapped);
+      _formKey.currentState!.save();
+      if (canSave) {
+        if (isNew) {
+          Note newNote = Note(
+              id: id,
+              title: titleController.text,
+              date: DateTime.now(),
+              subtitle:
+                  noteGallery != null ? NoteMedia.encode(noteGallery!) : null);
+          if (noteGallery == null) {
+            navHome(context);
             return;
+          } else {
+            addNote(newNote);
+            Utils()
+                .logger(cEditNote, 'Create: Save Test - ${newNote.subtitle}');
           }
-          Utils().logger(
-              cEditNote, 'Tapped Add Image ${noteGallery![nMID].imageUrl}');
-          addTextField();
-        },
-        child: const Icon(Icons.camera),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      appBar: AppBar(
-        leading: IconButton(
-          tooltip: 'Back',
-          icon: const Icon(
-            Icons.arrow_back,
-            size: 30,
-          ),
-          onPressed: () => {navHome(context)},
-        ),
-        title: Text(
-          isNew ? cNewNote : cEditNote,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(0, 0, 15, 0),
-            child: IconButton(
-              tooltip: isNew ? 'Save' : 'Update',
-              icon: Icon(
-                isNew ? Icons.check : Icons.update,
-                size: 30,
-              ),
-              onPressed: () async {
-                if (noteGallery == null) {
-                  canSave = false;
-                } else if (noteGallery![0].note == 'null' ||
-                    noteGallery![0].note == null ||
-                    noteGallery![0].note == '') {
-                  canSave = false;
-                }
-                Utils().logger(cEditNote, 'Saved Button was tapped');
-                _formKey.currentState!.save();
-                if (canSave) {
-                  if (isNew) {
-                    Note newNote = Note(
-                        id: id,
-                        title: titleController.text,
-                        date: DateTime.now(),
-                        subtitle: noteGallery != null
-                            ? NoteMedia.encode(noteGallery!)
-                            : null);
-                    if (noteGallery == null) {
-                      navHome(context);
-                      return;
-                    } else {
-                      addNote(newNote);
-                      Utils().logger('Edit Screen',
-                          'Create: Save Test - ${newNote.subtitle}');
-                    }
-                  } else {
-                    Utils().logger('Edit Screen', 'Updated ${widget.id}');
-                    Note newNote = Note(
-                      id: note!.id,
-                      title: titleController.text,
-                      date: DateTime.now(),
-                      subtitle: NoteMedia.encode(noteGallery!),
-                    );
-                    update(newNote);
-                    Utils().logger('Edit Screen',
-                        'Update: Save Test - ${newNote.subtitle}');
-                  }
-                }
+        } else {
+          Utils().logger(cEditNote, 'Updated ${widget.id}');
+          Note newNote = Note(
+            id: note!.id,
+            title: titleController.text,
+            date: DateTime.now(),
+            subtitle: NoteMedia.encode(noteGallery!),
+          );
+          update(newNote);
+          Utils().logger(cEditNote, 'Update: Save Test - ${newNote.subtitle}');
+        }
+      }
 
-                navHome(context);
-              },
-            ),
-          )
-        ],
-      ),
-      body: Form(
-        key: _formKey,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              SizedBox(
-                height: 20,
-                child: Text(
-                  dateString,
-                  style: TextStyle(
-                    color: Theme.of(context).textTheme.headline1!.color,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              SizedBox(
-                height: 25,
-                child: TextFormField(
-                  controller: titleController,
-                  style: TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: Theme.of(context).textTheme.headline1!.color,
-                  ),
-                  decoration: InputDecoration(
-                    hintStyle: TextStyle(
-                      fontSize: 20,
-                      color: Theme.of(context).textTheme.bodyText1!.color,
-                    ),
-                    hintText: cCTitle,
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-                  ),
-                  onChanged: (value) {
-                    Utils().logger('Edit Screen', value);
+      navHome(context);
+    }
 
-                    _title = value;
-                  },
+    return WillPopScope(
+      //Check when back button is pressed
+      onWillPop: () async {
+        Utils().logger(cEditNote, cBackButtonTapped);
+        if (canSave) {
+          Utils().logger(cEditNote, cCanSave);
+
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text(
+                  cExitConfirmation,
+                  style: TextStyle(
+                      color: Theme.of(context).textTheme.headline1!.color),
                 ),
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Flexible(
-                  child: Stack(
-                children: [
-                  noteWidget(noteGallery!, context),
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: GestureDetector(
-                        onTap: () => {addTextField()},
-                        child: const Bubble(
-                            width: 70,
-                            height: 30,
-                            child: Text(
-                              'Add Note',
-                              style: TextStyle(
-                                  fontSize: 20, fontWeight: FontWeight.bold),
-                            ))),
+                actions: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: <Widget>[
+                      TextButton(
+                        child: Text(
+                          cSave,
+                          style: TextStyle(
+                              color:
+                                  Theme.of(context).textTheme.headline1!.color),
+                        ),
+                        onPressed: () {
+                          save();
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      TextButton(
+                        child: Text(
+                          cDiscard,
+                          style: TextStyle(
+                              color:
+                                  Theme.of(context).textTheme.headline1!.color),
+                        ),
+                        onPressed: () {
+                          //Discard
+                          Utils().logger(cEditNote, cDiscButtonTapped);
+                          navHome(context);
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ],
                   )
                 ],
-              )),
-            ],
+              );
+            },
+          );
+        } else {
+          Utils().logger(cEditNote, cCantSave);
+        }
+        return false;
+      },
+      child: Scaffold(
+        floatingActionButton: FloatingActionButton(
+          onPressed: () async {
+            Utils().logger(cEditNote, 'The value of Title is: $_title');
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setString(cTitle, _title ?? '');
+            imageFile = await popDialog(context);
+
+            int nMID = noteGallery!.length;
+            if (imageFile != null) {
+              NoteMedia newNoteMedia = NoteMedia(
+                  id: nMID,
+                  isMedia: true,
+                  imageUrl: imageFile![0].path,
+                  note: '');
+              addTab(newNoteMedia);
+            } else {
+              setState(() {
+                title = prefs.getString(cTitle) ?? '';
+              });
+              return;
+            }
+            Utils().logger(
+                cEditNote, 'Tapped Add Image ${noteGallery![nMID].imageUrl}');
+            addTextField();
+          },
+          child: const Icon(Icons.camera),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+        appBar: AppBar(
+          leading: IconButton(
+            tooltip: 'Back',
+            icon: const Icon(
+              Icons.arrow_back,
+              size: 30,
+            ),
+            onPressed: () => {navHome(context)},
+          ),
+          title: Text(
+            isNew ? cNewNote : cEditNote,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(0, 0, 15, 0),
+              child: IconButton(
+                  tooltip: isNew ? cSave : cUpdate,
+                  icon: Icon(
+                    isNew ? Icons.check : Icons.update,
+                    size: 30,
+                  ),
+                  onPressed: () {
+                    if (!firstBuild) save();
+                  }),
+            )
+          ],
+        ),
+        body: Form(
+          key: _formKey,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: 20,
+                  child: Text(
+                    dateString,
+                    style: TextStyle(
+                      color: Theme.of(context).textTheme.headline1!.color,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                SizedBox(
+                  height: 25,
+                  child: TextFormField(
+                    controller: titleController,
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).textTheme.headline1!.color,
+                    ),
+                    decoration: InputDecoration(
+                      hintStyle: TextStyle(
+                        fontSize: 20,
+                        color: Theme.of(context).textTheme.bodyText1!.color,
+                      ),
+                      hintText: cCTitle,
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
+                    ),
+                    onChanged: (value) {
+                      Utils().logger(cEditNote, value);
+
+                      _title = value;
+                    },
+                  ),
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                Flexible(
+                    child: Stack(
+                  children: [
+                    noteWidget(noteGallery!, context),
+                    if (canDisplayAddNote())
+                      Align(
+                        alignment: Alignment.bottomRight,
+                        child: GestureDetector(
+                            onTap: () => {addTextField()},
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Bubble(
+                                  width: 100,
+                                  height: 30,
+                                  child: Text(
+                                    cAddNote,
+                                    style: TextStyle(
+                                        color: Theme.of(context)
+                                            .textTheme
+                                            .headline1!
+                                            .color,
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.bold),
+                                  )),
+                            )),
+                      )
+                  ],
+                )),
+              ],
+            ),
           ),
         ),
       ),
@@ -334,7 +406,7 @@ class _EditScreenState extends State<EditScreen> {
   tile(NoteMedia noteMedia, int index) {
     if (noteMedia.isMedia) {
       return Semantics(
-        label: 'image_picker_example_picked_image',
+        label: cImagePickerMess,
         child: Image.file(File(noteMedia.imageUrl.toString())),
       );
     } else {
@@ -358,9 +430,9 @@ class _EditScreenState extends State<EditScreen> {
               contentPadding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
             ),
             onChanged: (value) {
-              Utils().logger('Edit Screen', value);
+              Utils().logger(cEditNote, value);
               noteGallery![index].note = value;
-              Utils().logger('Saved Value',
+              Utils().logger(cSave,
                   'The list has  ${noteGallery![index].note.toString()}');
             },
           ),
@@ -375,7 +447,7 @@ class _EditScreenState extends State<EditScreen> {
       return Align(
           alignment: Alignment.topRight,
           child: IconButton(
-              tooltip: 'Delete',
+              tooltip: cDelete,
               padding: const EdgeInsets.only(right: 6),
               onPressed: () {
                 setState(() {
@@ -398,23 +470,23 @@ Future<List<XFile>?>? popDialog(context) async {
   await showDialog(
     context: context,
     builder: (BuildContext context) => AlertDialog(
-      title: const Center(child: Text('Upload Photo')),
+      title: const Center(child: Text(cUploadPhoto)),
       actionsAlignment: MainAxisAlignment.spaceAround,
       actions: <Widget>[
         TextButton(
           onPressed: () {
             imageFiles = Utils().getImage(ImageSource.camera);
-            Navigator.pop(context, 'Camera');
+            Navigator.pop(context, cCamera);
           },
-          child: const Text('Camera'),
+          child: const Text(cCamera),
         ),
         TextButton(
           onPressed: () {
             imageFiles = Utils().getImages(ImageSource.gallery);
 
-            Navigator.pop(context, 'Gallery');
+            Navigator.pop(context, cGallery);
           },
-          child: const Text('Gallery'),
+          child: const Text(cGallery),
         ),
       ],
     ),
