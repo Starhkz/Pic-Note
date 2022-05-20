@@ -96,7 +96,8 @@ class PicDataBase extends ChangeNotifier {
     return notes;
   }
 
-  /// Returns the tags for a [Note] from the Database
+  /// Returns the tags for a [Note] from the Database.
+  /// Index refers to the ID of the note
   Future<List<String>> getTags(int index) async {
     List<Note> notes = [];
     final db = await initDB();
