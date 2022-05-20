@@ -19,7 +19,7 @@ class Bubble extends StatelessWidget {
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: Theme.of(context).primaryColor,
         borderRadius: BorderRadius.circular(radius),
         boxShadow: [
           BoxShadow(

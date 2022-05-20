@@ -27,3 +27,6 @@ export 'package:shared_preferences/shared_preferences.dart';
 export 'package:pic_note/models/note_model.dart';
 export 'package:pic_note/shared/utils.dart';
 export 'package:image_picker/image_picker.dart';
+
+export 'package:pic_note/widgets/bubble.dart';
+export 'package:provider/provider.dart';
