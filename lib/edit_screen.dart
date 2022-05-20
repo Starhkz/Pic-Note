@@ -42,6 +42,7 @@ class _EditScreenState extends State<EditScreen> {
   @override
   Widget build(BuildContext context) {
     PicDataBase picDataBase = Provider.of<PicDataBase>(context);
+    ShrinkAll shrinkAll = Provider.of<ShrinkAll>(context);
 
     ///Returns true if the last note is media
     bool canDisplayAddNote() {
@@ -63,6 +64,9 @@ class _EditScreenState extends State<EditScreen> {
     DateTime? date;
     Note? note;
     String? dateString;
+    if (firstBuild) {
+      // shrinkAll.shrinkAllToggle();
+    }
     if (!isNew) {
       canSave = true;
       note = widget.note!;
@@ -150,55 +154,11 @@ class _EditScreenState extends State<EditScreen> {
         if (canSave) {
           Utils().logger(cEditNote, cCanSave);
 
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text(
-                  cExitConfirmation,
-                  style: TextStyle(
-                      color: Theme.of(context).textTheme.headline1!.color),
-                ),
-                actions: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: <Widget>[
-                      TextButton(
-                        child: Text(
-                          cSave,
-                          style: TextStyle(
-                              color:
-                                  Theme.of(context).textTheme.headline1!.color),
-                        ),
-                        onPressed: () {
-                          save();
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                      TextButton(
-                        child: Text(
-                          cDiscard,
-                          style: TextStyle(
-                              color:
-                                  Theme.of(context).textTheme.headline1!.color),
-                        ),
-                        onPressed: () {
-                          //Discard
-                          Utils().logger(cEditNote, cDiscButtonTapped);
-                          navHome(context);
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                    ],
-                  )
-                ],
-              );
-            },
-          );
+          exitPrompt(context, save);
         } else {
           Utils().logger(cEditNote, cCantSave);
         }
-        return false;
+        return true;
       },
       child: Scaffold(
         floatingActionButton: FloatingActionButton(
@@ -236,7 +196,17 @@ class _EditScreenState extends State<EditScreen> {
               Icons.arrow_back,
               size: 30,
             ),
-            onPressed: () => {navHome(context)},
+            onPressed: () {
+              Utils().logger(cEditNote, cBackButtonTapped);
+              if (canSave) {
+                Utils().logger(cEditNote, cCanSave);
+
+                exitPrompt(context, save);
+              } else {
+                Utils().logger(cEditNote, cCantSave);
+                navHome(context);
+              }
+            },
           ),
           title: Text(
             isNew ? cNewNote : cEditNote,
