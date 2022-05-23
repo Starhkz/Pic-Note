@@ -152,7 +152,7 @@ class Date {
 }
 
 class SearchBar extends SearchDelegate<Note> {
-  bool shrinkAll = true;
+  bool canExpand = false;
 
   @override
   ThemeData appBarTheme(BuildContext context) {
@@ -191,7 +191,7 @@ class SearchBar extends SearchDelegate<Note> {
                   .contains(query.toLowerCase()))
           .map((element) => NoteTile(
                 note: element,
-                shrinkTile: shrinkAll,
+                canExpand: canExpand,
               ))
           .toList(),
     );
@@ -211,27 +211,11 @@ class SearchBar extends SearchDelegate<Note> {
                 padding: const EdgeInsets.symmetric(vertical: 5),
                 child: NoteTile(
                   note: element,
-                  shrinkTile: shrinkAll,
+                  canExpand: canExpand,
                 ),
               ))
           .toList(),
     );
-  }
-}
-
-class ShrinkAll extends ChangeNotifier {
-  static bool shrinkAll = false;
-  void shrinkAllToggle() {
-    shrinkAll = !shrinkAll;
-    notifyListeners();
-  }
-
-  //getter
-  bool get getShrinkAll => shrinkAll;
-  // setter
-  set setShrinkAll(bool value) {
-    shrinkAll = value;
-    notifyListeners();
   }
 }
 

@@ -17,7 +17,6 @@ void main() async {
     await PicDataBase().initDB();
     runApp(MultiProvider(providers: [
       ChangeNotifierProvider(create: (_) => PicDataBase()),
-      ChangeNotifierProvider(create: (_) => ShrinkAll()),
     ], child: const MyApp()));
   } else {
     runApp(const MyApp());
