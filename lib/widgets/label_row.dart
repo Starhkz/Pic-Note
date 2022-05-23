@@ -26,69 +26,80 @@ class _LabelRowState extends State<LabelRow> {
       future: widget.picDataBase.getTags(widget.index),
       builder: (context, snapshot) {
         List<String> tags = [];
-        if (snapshot.hasData) {
+        if (snapshot.hasData && snapshot.data!.isNotEmpty) {
           tags = snapshot.data!;
-          return SizedBox(
-            height: 40,
-            width: MediaQuery.of(context).size.width,
-            child: ListView.builder(
-              physics: const BouncingScrollPhysics(),
-              reverse: false,
-              scrollDirection: Axis.horizontal,
-              shrinkWrap: true,
-              key: UniqueKey(),
-              itemBuilder: (BuildContext context, int ind) {
-                return Padding(
-                  padding: const EdgeInsets.all(2),
-                  child: SizedBox(
-                    child: Container(
-                      padding: const EdgeInsets.fromLTRB(7, 5, 0, 0),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(15),
-                          color: Theme.of(context)
-                              .floatingActionButtonTheme
-                              .backgroundColor),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Center(
-                            child: Text(
-                              tags[ind],
-                              style: const TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.white),
+          return Center(
+            child: SizedBox(
+              height: 40,
+              width: MediaQuery.of(context).size.width,
+              child: ListView.builder(
+                physics: const BouncingScrollPhysics(),
+                reverse: false,
+                scrollDirection: Axis.horizontal,
+                shrinkWrap: true,
+                key: UniqueKey(),
+                itemBuilder: (BuildContext context, int ind) {
+                  return Padding(
+                    padding: const EdgeInsets.all(2),
+                    child: SizedBox(
+                      child: Container(
+                        padding: const EdgeInsets.fromLTRB(7, 5, 0, 0),
+                        decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(15),
+                            color: Theme.of(context)
+                                .floatingActionButtonTheme
+                                .backgroundColor),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Center(
+                              child: Text(
+                                tags[ind],
+                                style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.white),
+                              ),
                             ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: 20),
-                            child: IconButton(
-                                padding: EdgeInsets.zero,
-                                splashRadius: 25,
-                                splashColor:
-                                    const Color.fromARGB(68, 25, 56, 212),
-                                onPressed: () {
-                                  popLabel(ind, tags);
-                                },
-                                icon: const Icon(
-                                  Icons.cancel,
-                                  size: 15,
-                                  color: Colors.white,
-                                )),
-                          )
-                        ],
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 20),
+                              child: IconButton(
+                                  padding: EdgeInsets.zero,
+                                  splashRadius: 25,
+                                  splashColor:
+                                      const Color.fromARGB(68, 25, 56, 212),
+                                  onPressed: () {
+                                    popLabel(ind, tags);
+                                  },
+                                  icon: const Icon(
+                                    Icons.cancel,
+                                    size: 15,
+                                    color: Colors.white,
+                                  )),
+                            )
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                );
-              },
-              itemCount: tags.length,
+                  );
+                },
+                itemCount: tags.length,
+              ),
             ),
           );
         } else {
-          return const Text(
-            cDummyHint,
+          return Bubble(
+            width: 100,
+            height: 40,
+            color: Theme.of(context).floatingActionButtonTheme.backgroundColor,
+            child: const Text(
+              cAddLabel,
+              style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 20,
+                  color: Colors.white),
+            ),
           );
         }
       },

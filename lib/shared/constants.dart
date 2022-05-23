@@ -66,3 +66,4 @@ const cAdd = 'Add';
 const cHome = 'Home Page';
 const cNoteGalleryNull = 'Note Gallery is null';
 const cNoteGalleryNotNull = 'Note Gallery is not null';
+const cAddLabel = 'Add Label';
