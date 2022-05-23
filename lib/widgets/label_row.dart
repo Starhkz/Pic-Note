@@ -89,16 +89,20 @@ class _LabelRowState extends State<LabelRow> {
             ),
           );
         } else {
-          return Bubble(
-            width: 100,
-            height: 40,
-            color: Theme.of(context).floatingActionButtonTheme.backgroundColor,
-            child: const Text(
-              cAddLabel,
-              style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
-                  color: Colors.white),
+          return GestureDetector(
+            onTap: () => labelDialog(context, widget.note, widget.index),
+            child: Bubble(
+              width: 100,
+              height: 40,
+              color:
+                  Theme.of(context).floatingActionButtonTheme.backgroundColor,
+              child: const Text(
+                cAddLabel,
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: Colors.white),
+              ),
             ),
           );
         }
