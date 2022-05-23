@@ -2,12 +2,11 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:pic_note/imports.dart';
-import 'package:pic_note/widgets/label_row.dart';
 
 class NoteTile extends StatefulWidget {
   final Note note;
-  final bool shrinkTile;
-  const NoteTile({Key? key, required this.note, required this.shrinkTile})
+  final bool canExpand;
+  const NoteTile({Key? key, required this.note, required this.canExpand})
       : super(key: key);
 
   @override
@@ -28,14 +27,6 @@ class _NoteTileState extends State<NoteTile> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     PicDataBase picDataBase = Provider.of<PicDataBase>(context, listen: false);
-    ShrinkAll shrinkAll = Provider.of<ShrinkAll>(context, listen: false);
-    Utils().logger('Tile', 'Close all is ${widget.shrinkTile.toString()}');
-    if (widget.shrinkTile) {
-      setState(() {
-        canDisplay = false;
-        triggered = false;
-      });
-    }
 
     NoteMedia? image;
     bool containsImage = false;
@@ -69,39 +60,24 @@ class _NoteTileState extends State<NoteTile> with TickerProviderStateMixin {
 
     return Center(
       child: GestureDetector(
-          onTap: () => {
-                log(
-                  'Tapped ${note.id}',
-                  name: 'List Tile',
-                ),
-                if (!shrinkAll.getShrinkAll)
-                  {
-                    ShrinkAll().shrinkAllToggle(),
-                  },
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => EditScreen(
-                              note: note,
-                              id: note.id,
-                              isNew: false,
-                            )))
-              },
           onLongPress: () {
             log(
               'Long Pressed ${note.id}',
               name: 'List Tile',
             );
             setState(() {
-              // triggered = false;
-              canDisplay = false;
-              triggered = !triggered;
-
-              if (!triggered) {
-                _controller.forward();
+              if (!triggered && widget.canExpand) {
+                triggered = true;
               } else {
-                _controller.reverse();
+                canDisplay = false;
+                triggered = false;
               }
+
+              // if (!triggered) {
+              //   _controller.forward();
+              // } else {
+              //   _controller.reverse();
+              // }
             });
           },
           child: AnimatedBuilder(

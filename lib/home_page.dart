@@ -167,9 +167,23 @@ class _HomeState extends State<Home> {
                 ),
                 // The child of the Slidable is what the user sees when the
                 // component is not dragged.
-                child: Consumer<ShrinkAll>(builder: (_, value, __) {
-                  return NoteTile(note: note, shrinkTile: value.getShrinkAll);
-                }),
+                child: GestureDetector(
+                    onTap: () => {
+                          setState(() {}),
+                          log(
+                            'Tapped ${note.id}',
+                            name: 'List Tile',
+                          ),
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (_) => EditScreen(
+                                        note: note,
+                                        id: note.id,
+                                        isNew: false,
+                                      )))
+                        },
+                    child: NoteTile(note: note, canExpand: true)),
               ),
             ),
           );
