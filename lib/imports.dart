@@ -30,3 +30,5 @@ export 'package:image_picker/image_picker.dart';
 
 export 'package:pic_note/widgets/bubble.dart';
 export 'package:provider/provider.dart';
+
+export 'package:pic_note/widgets/label_row.dart';
