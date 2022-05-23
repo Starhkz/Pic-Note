@@ -22,7 +22,6 @@ class EditScreen extends StatefulWidget {
 
 class _EditScreenState extends State<EditScreen> {
   int id = 0;
-  bool canSave = true;
   List<XFile>? imageFile;
   List<NoteMedia>? noteGallery;
 
@@ -42,7 +41,7 @@ class _EditScreenState extends State<EditScreen> {
   @override
   Widget build(BuildContext context) {
     PicDataBase picDataBase = Provider.of<PicDataBase>(context);
-    ShrinkAll shrinkAll = Provider.of<ShrinkAll>(context);
+    // ShrinkAll shrinkAll = Provider.of<ShrinkAll>(context);
 
     ///Returns true if the last note is media
     bool canDisplayAddNote() {
@@ -68,7 +67,6 @@ class _EditScreenState extends State<EditScreen> {
       // shrinkAll.shrinkAllToggle();
     }
     if (!isNew) {
-      canSave = true;
       note = widget.note!;
       _title = title ?? note.title;
       Utils().logger(cEditNote, cNotNew);
@@ -105,17 +103,25 @@ class _EditScreenState extends State<EditScreen> {
       Utils().logger(cTextField, title.toString());
     }
 
-    if (noteGallery == null) {
-      canSave = false;
-    } else if (noteGallery![0].note == 'null' ||
-        noteGallery![0].note == null ||
-        noteGallery![0].note == '') {
-      canSave = false;
+    bool canSaveNote() {
+      bool canSaveNote = true;
+      if (titleController.text.isEmpty) {
+        canSaveNote = false;
+      }
+      if (noteGallery == null) {
+        canSaveNote = false;
+      } else if (noteGallery![0].note == 'null' ||
+          noteGallery![0].note == null ||
+          noteGallery![0].note == '') {
+        canSaveNote = false;
+      }
+      return canSaveNote;
     }
+
     save() {
       Utils().logger(cEditNote, cSaveButtonTapped);
       _formKey.currentState!.save();
-      if (canSave) {
+      if (canSaveNote()) {
         if (isNew) {
           Note newNote = Note(
               id: id,
@@ -124,9 +130,11 @@ class _EditScreenState extends State<EditScreen> {
               subtitle:
                   noteGallery != null ? NoteMedia.encode(noteGallery!) : null);
           if (noteGallery == null) {
+            Utils().logger(cEditNote, cNoteGalleryNull);
             navHome(context);
             return;
           } else {
+            Utils().logger(cEditNote, cNoteGalleryNotNull);
             addNote(newNote);
             Utils()
                 .logger(cEditNote, 'Create: Save Test - ${newNote.subtitle}');
@@ -151,7 +159,7 @@ class _EditScreenState extends State<EditScreen> {
       //Check when back button is pressed
       onWillPop: () async {
         Utils().logger(cEditNote, cBackButtonTapped);
-        if (canSave) {
+        if (canSaveNote()) {
           Utils().logger(cEditNote, cCanSave);
 
           exitPrompt(context, save);
@@ -198,7 +206,7 @@ class _EditScreenState extends State<EditScreen> {
             ),
             onPressed: () {
               Utils().logger(cEditNote, cBackButtonTapped);
-              if (canSave) {
+              if (canSaveNote()) {
                 Utils().logger(cEditNote, cCanSave);
 
                 exitPrompt(context, save);
@@ -225,7 +233,7 @@ class _EditScreenState extends State<EditScreen> {
                     size: 30,
                   ),
                   onPressed: () {
-                    if (!firstBuild) save();
+                    save();
                   }),
             )
           ],
