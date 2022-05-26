@@ -219,9 +219,14 @@ class SearchBar extends SearchDelegate<Note> {
   }
 }
 
-Future<dynamic> exitPrompt(BuildContext context, void Function() save) {
+Future<dynamic> exitPrompt(BuildContext context, void Function() save,
+    {AnimationController? controller, bool isTab = false}) async {
   navHome(BuildContext context) {
-    return Navigator.pop(context);
+    if (isTab) {
+      controller?.reverse();
+    } else {
+      return Navigator.pop(context);
+    }
   }
 
   return showDialog(
@@ -245,7 +250,7 @@ Future<dynamic> exitPrompt(BuildContext context, void Function() save) {
                 onPressed: () {
                   save();
                   // ShrinkAll().shrinkAllToggle();
-                  Navigator.of(context).pop();
+                  navHome(context);
                 },
               ),
               TextButton(
@@ -259,7 +264,7 @@ Future<dynamic> exitPrompt(BuildContext context, void Function() save) {
                   Utils().logger(cEditNote, cDiscButtonTapped);
                   // ShrinkAll().shrinkAllToggle();
                   navHome(context);
-                  Navigator.of(context).pop();
+                  Navigator.pop(context);
                 },
               ),
             ],
