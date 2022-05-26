@@ -39,6 +39,8 @@ class _HomeTabState extends State<HomeTab> with TickerProviderStateMixin {
 
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
+    double widthfold = width * 0.5;
+    double widthunfold = width * 0.65;
     // width *= 0.99;
     return Scaffold(
       floatingActionButton: FloatingActionButton(
@@ -96,7 +98,7 @@ class _HomeTabState extends State<HomeTab> with TickerProviderStateMixin {
                   offset: Offset(width * -0.2 * animation.value, 0),
                   child: Center(
                     child: SizedBox(
-                      width: width * .65,
+                      width: widthunfold - 0.15 * width * animation.value,
                       child: RefreshIndicator(
                           onRefresh: () {
                             setState(() {});
@@ -111,6 +113,10 @@ class _HomeTabState extends State<HomeTab> with TickerProviderStateMixin {
                                 })),
                           )),
                     ),
+                    // child: Container(
+                    //   width: widthunfold - 0.15 * width * animation.value,
+                    //   color: Colors.red,
+                    // ),
                   ),
                 ),
               ),
@@ -119,7 +125,7 @@ class _HomeTabState extends State<HomeTab> with TickerProviderStateMixin {
                 child: Transform.translate(
                   offset: Offset(0, height * reverse),
                   child: SizedBox(
-                      width: 0.35 * width,
+                      width: 0.35 * width + 0.15 * width * animation.value,
                       child:
                           Consumer<ScreenDataNotifier>(builder: (_, value, __) {
                         Note? note = ScreenDataNotifier().screenData?.note;
@@ -132,6 +138,10 @@ class _HomeTabState extends State<HomeTab> with TickerProviderStateMixin {
                           note: note,
                         );
                       })),
+                  // child: Container(
+                  //   width: 0.35 * width + 0.15 * width * animation.value,
+                  //   color: Colors.blue,
+                  //),
                 ),
               )
             ],

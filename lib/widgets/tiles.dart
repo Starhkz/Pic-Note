@@ -198,13 +198,8 @@ class _NoteTileState extends State<NoteTile> with TickerProviderStateMixin {
                                   child: Padding(
                                     padding: const EdgeInsets.all(10),
                                     child: Container(
-                                      width: MediaQuery.of(context).size.width *
-                                          0.79 *
-                                          0.2,
-                                      height:
-                                          MediaQuery.of(context).size.width *
-                                              0.79 *
-                                              0.2,
+                                      width: 68,
+                                      height: 68,
                                       decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(10),
