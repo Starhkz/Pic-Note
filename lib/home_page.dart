@@ -83,7 +83,7 @@ class _HomeState extends State<Home> {
     return FutureBuilder<List<Note>>(
       future: value.getNotes(),
       builder: (context, snapshot) {
-        if (snapshot.hasData) {
+        if (snapshot.hasData && snapshot.data!.isNotEmpty) {
           List<Note> notes = snapshot.data!;
           return noteListBuilder(notes);
         } else {
