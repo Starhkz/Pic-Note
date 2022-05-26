@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pic_note/models/screen_data.dart';
+import 'package:pic_note/screens/display.dart';
 import 'package:platform/platform.dart';
 import 'package:provider/provider.dart';
 import 'imports.dart';
@@ -17,6 +19,7 @@ void main() async {
     await PicDataBase().initDB();
     runApp(MultiProvider(providers: [
       ChangeNotifierProvider(create: (_) => PicDataBase()),
+      ChangeNotifierProvider(create: (_) => ScreenDataNotifier()),
     ], child: const MyApp()));
   } else {
     runApp(const MyApp());
@@ -39,6 +42,6 @@ class _MyAppState extends State<MyApp> {
         darkTheme: customDarkTheme(),
         theme: customLightTheme(),
         themeMode: ThemeMode.system,
-        home: const Home());
+        home: const Display());
   }
 }
