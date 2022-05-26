@@ -83,136 +83,149 @@ class _NoteTileState extends State<NoteTile> with TickerProviderStateMixin {
           child: AnimatedBuilder(
             animation: _controller,
             builder: (BuildContext context, Widget? child) {
-              return AnimatedContainer(
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(15),
-                    color: Theme.of(context).primaryColor),
-                onEnd: () {
-                  setState(() {
-                    if (triggered) {
-                      canDisplay = true;
-                    }
-                  });
-                },
-                duration: const Duration(milliseconds: 200),
-                height: triggered ? 130 : 88,
-                alignment: triggered
-                    ? Alignment.center
-                    : AlignmentDirectional.topCenter,
-                curve: Curves.fastOutSlowIn,
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisSize: MainAxisSize.max,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(left: 15),
-                          child: SizedBox(
-                            width:
-                                MediaQuery.of(context).size.width * 0.79 * 0.8,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SizedBox(
-                                  height: 10,
-                                ),
-                                Text(
-                                  widget.note.title,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.bold,
+              return Card(
+                elevation: 2,
+                clipBehavior: Clip.antiAlias,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: AnimatedContainer(
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(15),
+                      color: Theme.of(context).primaryColor),
+                  onEnd: () {
+                    setState(() {
+                      if (triggered) {
+                        canDisplay = true;
+                      }
+                    });
+                  },
+                  duration: const Duration(milliseconds: 200),
+                  height: triggered ? 150 : 88,
+                  alignment: triggered
+                      ? Alignment.center
+                      : AlignmentDirectional.center,
+                  curve: Curves.fastOutSlowIn,
+                  child: Column(
+                    children: [
+                      Row(
+                        mainAxisSize: MainAxisSize.max,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.only(left: 15),
+                            child: SizedBox(
+                              width: MediaQuery.of(context).size.width *
+                                  0.79 *
+                                  0.8 *
+                                  0.6,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const SizedBox(
+                                    height: 10,
+                                  ),
+                                  Text(
+                                    widget.note.title,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                        fontSize: 22,
+                                        fontWeight: FontWeight.bold,
+                                        color: Theme.of(context)
+                                            .textTheme
+                                            .headline1!
+                                            .color),
+                                  ),
+                                  const SizedBox(
+                                    height: 5,
+                                  ),
+                                  // ignore: prefer_const_constructors
+                                  Text(
+                                    subtitle,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w500,
                                       color: Theme.of(context)
                                           .textTheme
                                           .headline1!
-                                          .color),
-                                ),
-                                const SizedBox(
-                                  height: 5,
-                                ),
-                                // ignore: prefer_const_constructors
-                                Text(
-                                  subtitle,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w500,
-                                    color: Theme.of(context)
-                                        .textTheme
-                                        .headline1!
-                                        .color,
+                                          .color,
+                                    ),
+                                    maxLines: 1,
                                   ),
-                                  maxLines: 1,
-                                ),
-                                const SizedBox(
-                                  height: 5,
-                                ),
-                                Text(
-                                  date.dateTime,
-                                  style: TextStyle(
-                                    color: Theme.of(context)
-                                        .textTheme
-                                        .headline1!
-                                        .color,
+                                  const SizedBox(
+                                    height: 5,
                                   ),
-                                ),
-                                const SizedBox(
-                                  height: 7,
-                                )
-                              ],
+                                  Text(
+                                    date.dateTime,
+                                    style: TextStyle(
+                                      color: Theme.of(context)
+                                          .textTheme
+                                          .headline1!
+                                          .color,
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 7,
+                                  )
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                        containsImage
-                            ? GestureDetector(
-                                onTap: () {
-                                  showDialog(
-                                      context: context,
-                                      builder: (BuildContext context) {
-                                        return AlertDialog(
-                                            contentPadding: EdgeInsets.zero,
-                                            content: Image.file(
-                                              File(imageUrl),
-                                              height: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.79 *
-                                                  0.8,
-                                            ));
-                                      });
-                                  log(
-                                    'Tapped image Area of ${widget.note.id}',
-                                    name: 'Tile',
-                                  );
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.all(10),
-                                  child: Container(
-                                    width: MediaQuery.of(context).size.width *
-                                        0.79 *
-                                        0.2,
-                                    height: MediaQuery.of(context).size.width *
-                                        0.79 *
-                                        0.2,
-                                    decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(10),
-                                        color: Colors.blue,
-                                        image: DecorationImage(
-                                          image: FileImage(File(imageUrl)),
-                                          fit: BoxFit.cover,
-                                        )),
+                          containsImage
+                              ? GestureDetector(
+                                  onTap: () {
+                                    showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return AlertDialog(
+                                              contentPadding: EdgeInsets.zero,
+                                              content: Image.file(
+                                                File(imageUrl),
+                                                height: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.79 *
+                                                    0.8,
+                                              ));
+                                        });
+                                    log(
+                                      'Tapped image Area of ${widget.note.id}',
+                                      name: 'Tile',
+                                    );
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(10),
+                                    child: Container(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.79 *
+                                          0.2,
+                                      height:
+                                          MediaQuery.of(context).size.width *
+                                              0.79 *
+                                              0.2,
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          color: Colors.blue,
+                                          image: DecorationImage(
+                                            image: FileImage(File(imageUrl)),
+                                            fit: BoxFit.cover,
+                                          )),
+                                    ),
                                   ),
-                                ),
-                              )
-                            : const SizedBox()
-                      ],
-                    ),
-                    if (triggered && canDisplay)
-                      LabelRow(
-                          picDataBase: picDataBase, index: note.id, note: note)
-                  ],
+                                )
+                              : const SizedBox()
+                        ],
+                      ),
+                      if (triggered && canDisplay)
+                        LabelRow(
+                            picDataBase: picDataBase,
+                            index: note.id,
+                            note: note)
+                    ],
+                  ),
                 ),
               );
             },
