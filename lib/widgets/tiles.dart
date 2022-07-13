@@ -216,9 +216,11 @@ class _NoteTileState extends State<NoteTile> with TickerProviderStateMixin {
                       ),
                       if (triggered && canDisplay)
                         LabelRow(
-                            picDataBase: picDataBase,
-                            index: note.id,
-                            note: note)
+                          picDataBase: picDataBase,
+                          index: note.id,
+                          note: note,
+                          canClick: true,
+                        )
                     ],
                   ),
                 ),

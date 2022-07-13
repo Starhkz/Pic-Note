@@ -6,6 +6,7 @@ import '../shared/styling/colors.dart';
 class LabelRow extends StatefulWidget {
   const LabelRow({
     Key? key,
+    required this.canClick,
     required this.picDataBase,
     required this.index,
     required this.note,
@@ -14,6 +15,7 @@ class LabelRow extends StatefulWidget {
   final PicDataBase picDataBase;
   final int index;
   final Note note;
+  final bool canClick;
 
   @override
   State<LabelRow> createState() => _LabelRowState();
@@ -89,9 +91,26 @@ class _LabelRowState extends State<LabelRow> {
             ),
           );
         } else {
-          return GestureDetector(
-            onTap: () => labelDialog(context, widget.note, widget.index),
-            child: Bubble(
+          if (widget.canClick) {
+            return GestureDetector(
+              onTap: () => labelDialog(context, widget.note, widget.index),
+              child: Bubble(
+                width: 100,
+                height: 40,
+                color:
+                    Theme.of(context).floatingActionButtonTheme.backgroundColor,
+                child: const Text(
+                  cAddLabel,
+                  style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                      color: Colors.white),
+                ),
+                isFlat: !widget.canClick,
+              ),
+            );
+          } else {
+            return Bubble(
               width: 100,
               height: 40,
               color:
@@ -103,8 +122,9 @@ class _LabelRowState extends State<LabelRow> {
                     fontSize: 20,
                     color: Colors.white),
               ),
-            ),
-          );
+              isFlat: !widget.canClick,
+            );
+          }
         }
       },
     );

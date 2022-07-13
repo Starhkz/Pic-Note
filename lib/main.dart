@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:pic_note/models/screen_data.dart';
 import 'package:pic_note/screens/display.dart';
 import 'package:platform/platform.dart';
@@ -8,6 +9,8 @@ import 'shared/styling/theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations(
+      [DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   // Open the database and store the reference.
   // get the platform
   bool isMobile() {
