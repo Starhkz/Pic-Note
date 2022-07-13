@@ -24,7 +24,12 @@ labelDialog(BuildContext context, Note note, int index) async {
             child: SingleChildScrollView(
               child: Column(
                 children: [
-                  LabelRow(picDataBase: picDataBase, index: index, note: note),
+                  LabelRow(
+                    picDataBase: picDataBase,
+                    index: index,
+                    note: note,
+                    canClick: false,
+                  ),
                   TextFormField(
                     cursorColor: Theme.of(context).textTheme.headline1!.color,
                     style: TextStyle(

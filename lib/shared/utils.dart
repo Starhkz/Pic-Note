@@ -209,9 +209,25 @@ class SearchBar extends SearchDelegate<Note> {
                   .contains(query.toLowerCase()))
           .map((element) => Padding(
                 padding: const EdgeInsets.symmetric(vertical: 5),
-                child: NoteTile(
-                  note: element,
-                  canExpand: canExpand,
+                child: GestureDetector(
+                  onTap: () => {
+                    log(
+                      'Tapped ${element.id}',
+                      name: 'List Tile',
+                    ),
+                    Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (_) => EditScreen(
+                                  note: element,
+                                  id: element.id,
+                                  isNew: false,
+                                )))
+                  },
+                  child: NoteTile(
+                    note: element,
+                    canExpand: canExpand,
+                  ),
                 ),
               ))
           .toList(),
